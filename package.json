@@ -1,0 +1,50 @@
+{
+  "name": "breeze-chms",
+  "version": "0.0.1",
+  "description": "Provides convenient access to the Breeze REST API - https://app.breezechms.com/api.",
+  "keywords": [
+    "breeze",
+    "chms",
+    "node",
+    "javascript"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
+    "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
+    "lint": "tslint -p tsconfig.json",
+    "prepare": "npm run build",
+    "prepublishOnly": "npm run test && npm run lint",
+    "preversion": "npm run lint",
+    "version": "npm run format && git add -A src",
+    "postversion": "git push && git push --tags"
+  },
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
+  "files": [
+    "build/**/*"
+  ],
+  "homepage": "https://github.com/notebird-app/breeze-chms",
+  "bugs": {
+    "url": "https://github.com/notebird-app/breeze-chms/issues",
+    "email": "support@notebird.dev"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/notebird-app/breeze-chms.git"
+  },
+  "author": "Chris Doe <cdoe@notebird.app> (notebird.app)",
+  "license": "MIT",
+  "private": false,
+  "engines": {
+    "node": ">=10.0.0"
+  },
+  "engineStrict": true,
+  "dependencies": {
+    "axios": "^0.20.0"
+  },
+  "devDependencies": {
+    "prettier": "^2.1.2",
+    "typescript": "^4.0.3"
+  }
+}
