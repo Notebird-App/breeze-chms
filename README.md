@@ -14,7 +14,7 @@ yarn add breeze-chms
 
 ## Usage
 
-The package needs to be configured with your account's subdomain and secret API key. The subdomain is what comes before breezechms.com in your browser address bar. Your unique/secret API key is available on the `Extensions` page of your Breeze account `https://[yoursubdomian].breezechms.com/extensions/api`. Require the package and initialize it with values for your subdomain and API key:
+The package needs to be configured with your account's subdomain and secret API key. The subdomain is what comes before `breezechms.com` in your browser address bar. Your unique/secret API key is available on the `Extensions` page of your Breeze account `https://YOURSUBDOMAIN.breezechms.com/extensions/api`. Require the package and initialize it with values for your subdomain and API key:
 
 ```js
 // TODO: Write example
@@ -32,16 +32,16 @@ Or using ES modules and `async`/`await`:
 
 Not all Breeze endpoints have been implemented. See below for which ones are currently available:
 
-- [ ] People
-- [ ] Tags
-- [ ] Events
-- [ ] Check In
-- [ ] Contributions
-- [ ] Pledges
-- [ ] Forms
-- [ ] Volunteers
-- [ ] Families
-- [ ] Account
+- [-] [People][https://app.breezechms.com/api#people]
+- [ ] [Tags][https://app.breezechms.com/api#tags]
+- [ ] [Events][https://app.breezechms.com/api#events]
+- [ ] [Check In][https://app.breezechms.com/api#checkin]
+- [ ] [Contributions][https://app.breezechms.com/api#contributions]
+- [ ] [Pledges][https://app.breezechms.com/api#pledges]
+- [ ] [Forms][https://app.breezechms.com/api#forms]
+- [ ] [Volunteers][https://app.breezechms.com/api#volunteers]
+- [ ] [Families][https://app.breezechms.com/api#families]
+- [-] [Account][https://app.breezechms.com/api#account]
 
 ## Dependencies
 

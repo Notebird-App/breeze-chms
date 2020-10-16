@@ -9,7 +9,8 @@
     "javascript"
   ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest --config jestconfig.json",
+    "test-watch": "jest --config jestconfig.json --watch",
     "build": "tsc",
     "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
     "lint": "tslint -p tsconfig.json",
@@ -19,8 +20,8 @@
     "version": "npm run format && git add -A src",
     "postversion": "git push && git push --tags"
   },
-  "main": "build/index.js",
-  "types": "build/index.d.ts",
+  "main": "build/breeze.js",
+  "types": "build/breeze.d.ts",
   "files": [
     "build/**/*"
   ],
@@ -44,7 +45,12 @@
     "axios": "^0.20.0"
   },
   "devDependencies": {
+    "@types/jest": "^26.0.14",
+    "dotenv": "^8.2.0",
+    "jest": "^26.5.3",
+    "jest-to-match-shape-of": "^1.3.0",
     "prettier": "^2.1.2",
+    "ts-jest": "^26.4.1",
     "typescript": "^4.0.3"
   }
 }
