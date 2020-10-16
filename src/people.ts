@@ -469,9 +469,9 @@ interface ListProfilesParams<T extends string = never> {
    * */
   offset?: number;
   /**
-   * Name of custom fields to be matched up and included with each person result.
+   * Array of custom fields to be matched up and included with each person result.
    *
-   * *NOTE:* This finds the first field that matches, so it's encouraged to use
+   * **NOTE:** This finds the first field that matches, so it's encouraged to use
    * only fields unique names.
    *
    * _(ex. ['Gender','Marital Status', 'School'])_

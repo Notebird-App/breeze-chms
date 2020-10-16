@@ -1,14 +1,16 @@
 # People
 
-breeze-chms provides convenient access to **[Breeze's People API](https://app.breezechms.com/api#people)**. You can use these methods to create, read, update, and delete people in your Breeze database.
+`breeze-chms` provides convenient access to **[Breeze's People API](https://app.breezechms.com/api#people)**. You can use these methods to create, read, update, and delete people in your Breeze database.
 
 ### Methods
 
-- [people.fields()](<#people.fields()>)
-- [people.getProfile()](<#people.getProfile()>)
-- [people.listProfiles()](<#people.listProfiles()>)
-- [people.list()](<#people.list()>)
-- [people.get()](<#people.get()>)
+- [people.fields()](#peoplefields)
+- [people.getProfile()](#peoplegetProfile)
+- [people.listProfiles()](#peoplelistProfiles)
+- [people.list()](#peoplelist)
+- [people.get()](#peopleget)
+
+---
 
 ---
 
@@ -16,14 +18,16 @@ breeze-chms provides convenient access to **[Breeze's People API](https://app.br
 
 Get information about custom-defined profile fields in your Breeze database. <sup>[Breeze API](https://app.breezechms.com/api#list_profile_fields)</sup>
 
+_No parameters_
+
 ### Example:
 
 ```js
-const fields = await breeze.people.fields();
+await breeze.people.fields();
 ```
 
 <details>
-<summary>Returns</summary>
+<summary>Response:</summary>
 
 ```json
 [
@@ -68,7 +72,9 @@ const fields = await breeze.people.fields();
 ]
 ```
 
-</details>
+</details><br>
+
+---
 
 ---
 
@@ -76,20 +82,33 @@ const fields = await breeze.people.fields();
 
 Retrieve a list people in your Breeze database with special formatting that performs an extra lookup and properly labels custom-defined fields.
 
+<details>
+<summary>Parameters:</summary>
+
+| Option | Description                                                                                                                                                                             | Default                               |
+| ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------- |
+| limit  | Number of people to return. If 0 or not present, will return all people.                                                                                                                | `0` _(no&nbsp;limit)_                 |
+| offset | Number of people to skip before beginning to return results.<br>_(Can be used in conjunction with limit for pagination.)_                                                               | `0` _(no&nbsp;offset)_                |
+| fields | Array of custom fields to be matched up and included with each person result.<br>**NOTE:** This finds the first field that matches, so it's encouraged to use only fields unique names. | `['']` _(no&nbsp;custom&nbsp;fields)_ |
+
+</details><br>
+
 ### Example:
 
 ```js
-await breeze.people.listProfiles({ fields: [''] });
+await breeze.people.listProfiles({ fields: ['Campus', 'Service'] });
 ```
 
 <details>
-<summary>Returns</summary>
+<summary>Response:</summary>
 
 ```json
 
 ```
 
-</details>
+</details><br>
+
+---
 
 ---
 
@@ -106,10 +125,10 @@ await breeze.people.list();
 ```
 
 <details>
-<summary>Returns</summary>
+<summary>Response:</summary>
 
 ```json
 
 ```
 
-</details>
+</details><br>
