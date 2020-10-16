@@ -3,8 +3,8 @@ import { AxiosInstance } from 'axios';
 export default class Account {
   /** Callable http client with url and api key initialized */
   private api: AxiosInstance;
-  constructor(axios: AxiosInstance) {
-    this.api = axios;
+  constructor(api: AxiosInstance) {
+    this.api = api;
   }
 
   async summary() {

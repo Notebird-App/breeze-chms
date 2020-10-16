@@ -3,19 +3,17 @@ import { AxiosInstance } from 'axios';
 export default class People {
   /** Callable http client with url and api key initialized */
   private api: AxiosInstance;
-  constructor(axios: AxiosInstance) {
-    this.api = axios;
+  constructor(api: AxiosInstance) {
+    this.api = api;
   }
 
-  /** List people in your Breeze database.
+  /** Get information about custom-defined profile fields in your Breeze database.
    *
-   * [API REF](https://app.breezechms.com/api#list_people) */
-  list(params?: { details?: 0 } & ListParams): Promise<BreezePerson[]>;
-  list(params: { details: 1 } & ListParams): Promise<BreezePersonDetail[]>;
-  async list(params: ListParams = {}) {
-    const { data } = await this.api.get('people', { params });
+   * [API REF](https://app.breezechms.com/api#list_profile_fields) */
+  async fields() {
+    const { data } = await this.api.get('profile');
     if (data.success === false) throw 'Permission Denied';
-    return data;
+    return data as ProfileSection[];
   }
 
   /** Get individual person record in your Breeze database.
@@ -29,13 +27,15 @@ export default class People {
     return data;
   }
 
-  /** Get information about profile fields in your Breeze database.
+  /** Retrieve a list of people in your Breeze database.
    *
-   * [API REF](https://app.breezechms.com/api#list_profile_fields) */
-  async fields() {
-    const { data } = await this.api.get('profile');
+   * [API REF](https://app.breezechms.com/api#list_people) */
+  list(params?: { details?: 0 } & ListParams): Promise<BreezePerson[]>;
+  list(params: { details: 1 } & ListParams): Promise<BreezePersonDetail[]>;
+  async list(params: ListParams = {}) {
+    const { data } = await this.api.get('people', { params });
     if (data.success === false) throw 'Permission Denied';
-    return data as ProfileSection[];
+    return data;
   }
 
   /** List people in your Breeze database with profile fields formatted and merged in. */
@@ -43,17 +43,17 @@ export default class People {
     filter_json,
     limit,
     offset,
-    customFields = [],
+    fields = [],
   }: ListProfilesParams<T> = {}) {
     // async listProfiles(params: ListProfilesParams = {}) {
-    const [fields, people] = await Promise.all([
+    const [sections, people] = await Promise.all([
       this.fields(),
       this.list({ details: 1, filter_json, limit, offset }),
     ]);
     // Pluck out custom field ids
     const customFieldIds: { [id: string]: T } = {};
-    for (const key of customFields) {
-      fields.find((section) => {
+    for (const key of fields) {
+      sections.find((section) => {
         return section.fields.find((field) => {
           if (field.name === key) {
             customFieldIds[field.field_id] = key;
@@ -96,7 +96,7 @@ export default class People {
         phones: [],
         email: null,
         address: null,
-        custom: Object.assign({}, ...customFields.map((field) => ({ [field]: null }))),
+        fields: Object.assign({}, ...fields.map((field) => ({ [field]: null }))),
       };
       // Loop through all details
       for (const key of Object.keys(details)) {
@@ -151,8 +151,8 @@ export default class People {
               const match = customFieldIds[key];
               const value = field.name?.trim() || null;
               if (match && value) {
-                profile.custom[match] = profile.custom[match]
-                  ? [profile.custom[match], value].join(' · ')
+                profile.fields[match] = profile.fields[match]
+                  ? [profile.fields[match], value].join(' · ')
                   : value;
               }
             }
@@ -164,18 +164,18 @@ export default class People {
           const value =
             (typeof detail === 'string' ? detail?.trim() : detail?.name?.trim()) || null;
           if (match && value) {
-            profile.custom[match] = value;
+            profile.fields[match] = value;
             // If value is date, convert to ISO `YYYY-MM-DD` and override
             const dateArray = value.split('/');
             if (dateArray.length === 3) {
               const month = Number(dateArray[0]);
               const day = Number(dateArray[1]);
-              const year = Number(dateArray[1]);
+              const year = Number(dateArray[2]);
               const validMonth = month >= 1 && month <= 12;
               const validDay = day >= 1 && day <= 31;
               const validYear = year >= 0 && year <= 9999;
               if (validMonth && validDay && validYear) {
-                profile.custom[match] = `${year}-${month}-${day}`;
+                profile.fields[match] = `${dateArray[2]}-${dateArray[0]}-${dateArray[1]}`;
               }
             }
           }
@@ -292,11 +292,7 @@ export interface PersonProfile<T extends string = never> {
     lng: string | null;
     private: boolean;
   } | null;
-  custom: { [K in T]: string | null };
-  // custom: T extends string ? { [K in T]: string | null } : {};
-  // custom: { [K in T]: string | null };
-  // custom: { [K in keyof T]: string | null };
-  // custom: { [key: string]: { name: T[number]; value: string | null } };
+  fields: { [K in T]: string | null };
 }
 
 export interface ProfileSection {
@@ -480,5 +476,5 @@ interface ListProfilesParams<T extends string = never> {
    *
    * _(ex. ['Gender','Marital Status', 'School'])_
    * */
-  customFields?: T[];
+  fields?: T[];
 }

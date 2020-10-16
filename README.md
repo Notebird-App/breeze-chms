@@ -1,6 +1,6 @@
-# Breeze CHmS - Javascript Library
+# breeze-chms
 
-The Breeze CHmS Javascript library provides convenient access to the [Breeze REST API](https://app.breezechms.com/api) from applications written in server-side JavaScript (Node).
+The `breeze-chms` javascript library provides convenient access to the [Breeze REST API](https://app.breezechms.com/api) from applications written in server-side JavaScript (Node).
 
 ## Installation
 
@@ -17,31 +17,42 @@ yarn add breeze-chms
 The package needs to be configured with your account's subdomain and secret API key. The subdomain is what comes before `breezechms.com` in your browser address bar. Your unique/secret API key is available on the `Extensions` page of your Breeze account `https://YOURSUBDOMAIN.breezechms.com/extensions/api`. Require the package and initialize it with values for your subdomain and API key:
 
 ```js
-// TODO: Write example
+const breeze = require('breeze-chms')('SUBDOMAIN', 'APIKEY');
+
+breeze.people
+  .get('PERSONID')
+  .then((person) => console.log(person.id))
+  .catch((error) => console.error(error));
 ```
 
 Or using ES modules and `async`/`await`:
 
 ```js
-// TODO: Write example
+import Breeze from 'breeze-chms';
+const breeze = new Breeze('SUBDOMAIN', 'APIKEY');
+
+(async () => {
+  const person = await breeze.people.get('PERSONID');
+  console.log(person.id);
+})();
 ```
 
-**NOTE**: DO NOT hardcode, expose, or otherwise commit your API key.
+**NOTE**: DO NOT hardcode, expose, or otherwise commit your API key to a repository.
 
 ## Endpoints
 
 Not all Breeze endpoints have been implemented. See below for which ones are currently available:
 
-- [-] [People][https://app.breezechms.com/api#people]
-- [ ] [Tags][https://app.breezechms.com/api#tags]
-- [ ] [Events][https://app.breezechms.com/api#events]
-- [ ] [Check In][https://app.breezechms.com/api#checkin]
-- [ ] [Contributions][https://app.breezechms.com/api#contributions]
-- [ ] [Pledges][https://app.breezechms.com/api#pledges]
-- [ ] [Forms][https://app.breezechms.com/api#forms]
-- [ ] [Volunteers][https://app.breezechms.com/api#volunteers]
-- [ ] [Families][https://app.breezechms.com/api#families]
-- [-] [Account][https://app.breezechms.com/api#account]
+- [x] [People](docs/People.md)
+- [ ] [Tags](docs/Tags.md)
+- [ ] [Events](docs/Events.md)
+- [ ] [Check In](docs/Check_In.md)
+- [ ] [Contributions](docs/Contributions.md)
+- [ ] [Pledges](docs/Pledges.md)
+- [ ] [Forms](docs/Forms.md)
+- [ ] [Volunteers](docs/Volunteers.md)
+- [ ] [Families](docs/Families.md)
+- [x] [Account](docs/Account.md)
 
 ## Dependencies
 
@@ -57,7 +68,7 @@ This project uses [SemVer](http://semver.org/) for versioning. For the versions 
 
 ## Authors
 
-- **Chris Doe** - _Initial work_ - [Notebird](https://github.com/notebird-app)
+- [Notebird Inc](https://github.com/notebird-app)
 
 ## License
 
