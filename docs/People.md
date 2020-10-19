@@ -165,11 +165,11 @@ const people = await breeze.people.list({ limit: 5, fields: ['service', 'roomNum
     "id": "PERSON_ID",
     "img": null,
     "name": {
-      "first": "William",
-      "last": "Frost",
-      "nick": "Bill",
+      "first": "Nelly",
+      "last": "Sams",
+      "nick": null,
       "middle": null,
-      "maiden": null
+      "maiden": "Gates"
     },
     "phones": [...],
     "email": {...},
@@ -183,14 +183,14 @@ const people = await breeze.people.list({ limit: 5, fields: ['service', 'roomNum
 
 ## `people.update()`
 
-Update a person in your Breeze database with profile fields matched and formatted. The returned value of this function isn't the full person object, but rather, the `fields_json` array that is used in the update call.
+Update a person in your Breeze database with profile fields matched and formatted.
 
 A few extra notes:
 
 - Any field you don't include will remain the same.
 - However, a `null` value or empty string will unset that field.
 - Fields you define are loosely matched (ignores spaces, special characters, and capitalization). So for example, a field you want returned as `1stGradeTeacher` it would match a the custom profile field you have defined in Breeze named `1st-grade teacher`.
-- Checkbox fields can be set with a string for a single value. For multiple values, you can use an array of strings or a interpunct delimited string. _(Ex. `'Value 1'`, `['Value 1', 'Value 2']`, `'Value 1 · Value 2` are all valid)_
+- Checkbox fields can be set with a string for a single value. For multiple values, you can use an array of strings or a interpunct delimited string. _(Ex. `'Value 1'`, `['Value 1', 'Value 2']`, `'Value 1 · Value 2'` are all valid)_
 
 <details>
 <summary>Parameters:</summary>
@@ -280,7 +280,7 @@ Add a person to your Breeze database with profile fields matched and formatted. 
 ### Example:
 
 ```js
-await breeze.people.add({
+const personId = await breeze.people.add({
   name: {
     first: 'Sally',
     last: 'Ridings',
@@ -309,7 +309,7 @@ await breeze.people.add({
 });
 ```
 
-### Returns: `PERSON_ID` string
+### Returns: newly created `PERSON_ID` string
 
 <br/>
 
@@ -333,9 +333,9 @@ await breeze.people.delete('PERSON_ID');
 
 Get information about user-defined profile fields in your Breeze database keyed by the field's name with auto-lookup based on an array of strings.
 
-Some commonly-used predefined fields are included by default such as: name, phone, email, address, family, birthday, gender, status, campus, maritalStatus, school, grade, and employer.
+Some commonly-used predefined fields are included by default such as: `name`, `phone`, `email`, `address`, `family`, `birthday`, `gender`, `status`, `campus`, `maritalStatus`, `school`, `grade`, and `employer`. All other's can be passed in the `fields` array and will be returned if found.
 
-All other's can be passed in the `fields` array and will be returned if found.
+** NOTE:** Ideally, you shouldn't need this function because the other `get()`, `list()`, `update()`, and `add()` methods perform this lookup automatically for you.
 
 <details>
 <summary>Parameters:</summary>
@@ -469,7 +469,21 @@ const person = await breeze.api.people.get('PERSON_ID');
 <summary>Sample response:</summary>
 
 ```json
-  // TODO: print response
+{
+  "id": "PERSON_ID",
+  "first_name": "Thomas",
+  "last_name": "Anderson",
+  "thumb_path": "",
+  "path": "img/profiles/generic/blue.jpg",
+  "details": {
+    "street_address": "123 Test Ave",
+    "city": "Grandville",
+    "state": "MI",
+    "zip": "49123",
+    "longitude": "",
+    "latitude": ""
+  }
+}
 ```
 
 </details><br/>
@@ -495,14 +509,28 @@ Retrieve a list people in your Breeze database. <sup>[Breeze API](https://app.br
 ### Example:
 
 ```js
-const people = await breeze.people.api.list({ details: 1 });
+const people = await breeze.people.api.list();
 ```
 
 <details>
 <summary>Sample response:</summary>
 
 ```json
-  // TODO: print response
+[
+  {
+    "id":"PERSON_ID",
+    "first_name":"Thomas",
+    "last_name":"Anderson",
+    "path":"img\/profiles\/generic\/blue.jpg"
+  },
+  {
+    "id":"PERSON_ID",
+    "first_name":"Kate",
+    "last_name":"Austen",
+    "path":"img\/profiles\/upload\/2498d7f78s.jpg"
+  },
+  ...
+]
 ```
 
 </details><br/>
@@ -516,9 +544,9 @@ Update a person in your Breeze database. <sup>[Breeze API](https://app.breezechm
 <details>
 <summary>Parameters:</summary>
 
-| Option      | Description                                                                                                                                                                                                                                                                       |
-| ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| fields_json | Additional fields to update.<br/>These fields are passed as a JSON encoded array of fields, each containing a field id, field type, response, and in some cases, more information. The field information itself can be found on [`people.profileFields()`](#peopleprofilefields). |
+| Option      | Description                                                                                                                                                                                                                                                           |
+| ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| fields_json | Additional fields to update.<br/>These fields are passed as an array of fields, each containing a field id, field type, response, and in some cases, more information. The field information itself can be found on [`people.profileFields()`](#peopleprofilefields). |
 
 </details>
 
@@ -548,32 +576,47 @@ Add a person to your Breeze database. <sup>[Breeze API](https://app.breezechms.c
 <details>
 <summary>Parameters:</summary>
 
-| Option      | Description                                                                                                                                                                                                                                                                    |
-| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| first       | New person's first name                                                                                                                                                                                                                                                        |
-| last        | New person's last name                                                                                                                                                                                                                                                         |
-| fields_json | Additional fields to add.<br/>These fields are passed as a JSON encoded array of fields, each containing a field id, field type, response, and in some cases, more information. The field information itself can be found on [`people.profileFields()`](#peopleprofilefields). |
+| Option      | Description                                                                                                                                                                                                                                                        |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| first       | New person's first name                                                                                                                                                                                                                                            |
+| last        | New person's last name                                                                                                                                                                                                                                             |
+| fields_json | Additional fields to add.<br/>These fields are passed as an array of fields, each containing a field id, field type, response, and in some cases, more information. The field information itself can be found on [`people.profileFields()`](#peopleprofilefields). |
 
 </details>
 
 ### Example:
 
 ```js
-const addedPerson = await breeze.people.api.add();
+const addedPerson = await breeze.people.api.add({ first: 'Jiminy', last: 'Cricket' });
 ```
 
 <details>
 <summary>Sample response:</summary>
 
 ```json
-  // TODO: print response
+{
+  "id": "PERSON_ID",
+  "first_name": "Jiminy",
+  "force_first_name": "Jiminy",
+  "last_name": "Cricket",
+  "thumb_path": "",
+  "path": "img/profiles/generic/gray.png",
+  "street_address": null,
+  "city": null,
+  "state": null,
+  "zip": null,
+  "details": {
+    "person_id": "PERSON_ID"
+  },
+  "family": []
+}
 ```
 
 </details><br/>
 
 ## `people.api.delete()`
 
-Delete a person from your Breeze database.
+Delete a person from your Breeze database. <sup>[Breeze API](https://app.breezechms.com/api#delete_person)</sup>
 
 **NOTE:** This is the same as [`people.delete()`](#peopledelete)
 

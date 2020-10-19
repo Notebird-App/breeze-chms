@@ -86,7 +86,7 @@ export default class People {
     // Other default fields
     const birthday = details.birthdate || null;
     const grade = details.grade || null;
-    const profile: PersonProfile<LookupKeys<L>> = {
+    const profile: Person<LookupKeys<L>> = {
       id,
       img: path.includes('generic') ? null : BREEZE_FILES_URL + path,
       name,
@@ -250,16 +250,14 @@ export default class People {
         // Handle all different parts of name
         case 'name':
           for (const namePart of Object.keys(name) as (keyof typeof name)[]) {
-            let value = name[namePart];
-            if (typeof value === 'undefined') break;
-            value = value?.trim() ?? '';
-            typeof value !== 'undefined' &&
-              fields_json.push({
-                field_id,
-                field_type: 'name',
-                response: 'undefined',
-                details: { value, part: `${namePart}_name`, person_id: id },
-              });
+            if (typeof name[namePart] === 'undefined') continue;
+            const value = `${name[namePart] || ''}`.trim();
+            fields_json.push({
+              field_id,
+              field_type: 'name',
+              response: 'undefined',
+              details: { value, part: `${namePart}_name`, person_id: id },
+            });
           }
           continue profileFieldsLoop;
         // Handle birthday
@@ -271,9 +269,8 @@ export default class People {
         // Handle all different parts of phone
         case 'phone':
           for (const phonePart of Object.keys(phones) as (keyof typeof phones)[]) {
-            let value = phones[phonePart];
-            if (typeof value === 'undefined') break;
-            value = phones[phonePart]?.trim() ?? '';
+            if (typeof phones[phonePart] === 'undefined') break;
+            const value = `${phones[phonePart] || ''}`.trim();
             fields_json.push({
               field_id,
               field_type: 'phone',
@@ -313,12 +310,13 @@ export default class People {
       // For predefined fields (gender, status, campus, maritalStatus, school, grade, or employer)
       const predefinedKey = profileField.key as typeof PREDEFINED_FIELDS[number];
       if (PREDEFINED_FIELDS.includes(predefinedKey) && predefinedKey !== 'birthday') {
-        const value = predefined[predefinedKey]?.trim();
-        if (typeof value === 'undefined') continue;
+        if (typeof predefined[predefinedKey] === 'undefined') continue;
+        const value = `${predefined[predefinedKey] || ''}`.trim();
         if (['multiple_choice', 'dropdown'].includes(field_type)) {
           // If value unset, clear value in Breeze
           if (!value) {
-            fields_json.push({ field_id, field_type, response: '' });
+            const response = field_type === 'dropdown' ? 'BLANK' : '';
+            fields_json.push({ field_id, field_type, response });
             continue;
           }
           // Otherwise, lookup option id
@@ -341,14 +339,15 @@ export default class People {
         continue;
       }
       // For custom defined fields
+      if (typeof fields[profileField.key] === 'undefined') continue;
       const fieldsValue = fields[profileField.key];
-      if (typeof fieldsValue === 'undefined') continue;
       // Multi-choice custom-fields
       if (['multiple_choice', 'dropdown'].includes(field_type)) {
         const value = (Array.isArray(fieldsValue) ? fieldsValue[0] : fieldsValue?.trim()) || '';
         // If value unset, clear value in Breeze
         if (!value) {
-          fields_json.push({ field_id, field_type, response: '' });
+          const response = field_type === 'dropdown' ? 'BLANK' : '';
+          fields_json.push({ field_id, field_type, response });
           continue;
         }
         // Otherwise, lookup option id
@@ -385,7 +384,7 @@ export default class People {
       fields_json.push({ field_id, field_type, response });
     }
     await this.apiUpdate(id, { fields_json });
-    // return fields_json;
+    return fields_json;
   }
   /** Add a person to your Breeze database with profile fields matched and formatted.
    *
@@ -397,7 +396,7 @@ export default class People {
       last: params.name.last.trim(),
     });
     // With that ID, update all other fields
-    const data = await this.update(addedPerson.id, params);
+    await this.update(addedPerson.id, params);
     return addedPerson.id;
   }
   /** Delete a person from your Breeze database. (This is an alias for `people.api.delete()`)*/
@@ -698,7 +697,7 @@ interface AddressDetail {
   is_primary: '0' | '1';
   is_private: '0' | '1';
 }
-type PersonProfile<T extends string = never> = {
+export type Person<T extends string = never> = {
   id: string;
   img: string | null;
   name: {
@@ -732,7 +731,7 @@ type PersonProfile<T extends string = never> = {
 // Method Params //
 ///////////////////
 // Get
-interface ApiGetParams {
+export interface ApiGetParams {
   /** Option to return all information (slower) or just basic info.
    *
    * 1 = get all information pertaining to person
@@ -743,7 +742,7 @@ interface ApiGetParams {
    * */
   details?: 1 | 0;
 }
-interface GetParams<L extends Lookup = never> {
+export interface GetParams<L extends Lookup = never> {
   /**
    * Array of custom fields to be matched up and included with each person result.
    *
@@ -755,7 +754,7 @@ interface GetParams<L extends Lookup = never> {
   fields?: readonly L[];
 }
 // List
-interface ApiListParams {
+export interface ApiListParams {
   /** Option to return all information (slower) or just names.
    *
    * 1 = get all information pertaining to person
@@ -789,7 +788,7 @@ interface ApiListParams {
    * */
   offset?: number;
 }
-interface ListParams<L extends Lookup = never> {
+export interface ListParams<L extends Lookup = never> {
   /** Option to filter through results based on criteria (tags, status, etc).
    *
    * Refer to `breeze.people.fields()` response to know values to search for or if you're
@@ -824,7 +823,7 @@ interface ListParams<L extends Lookup = never> {
   fields?: readonly L[];
 }
 // Update
-interface ApiUpdateParams {
+export interface ApiUpdateParams {
   /** Additional fields to update. These fields are passed as a JSON encoded array of fields,
    * each containing a field id, field type, response, and in some cases, more information.
    * The field information itself can be found on `people.profileFields()`. */
@@ -835,7 +834,7 @@ interface ApiUpdateParams {
     details?: string | { [key: string]: string };
   }[];
 }
-interface UpdateParams {
+export interface UpdateParams {
   /** Person's name parts to update */
   name?: {
     /** Value to update person's first name with */
@@ -893,7 +892,7 @@ interface UpdateParams {
   fields?: { [key: string]: string | null | string[] };
 }
 // Add
-interface ApiAddParams {
+export interface ApiAddParams {
   /** New person's first name */
   first?: string;
   /** New person's last name */
@@ -911,7 +910,7 @@ interface ApiAddParams {
     details?: string | { [key: string]: string };
   }[];
 }
-interface AddParams extends UpdateParams {
+export interface AddParams extends UpdateParams {
   /** New person's name parts */
   name: {
     /** New person's first name */
