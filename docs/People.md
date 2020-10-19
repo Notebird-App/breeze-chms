@@ -2,43 +2,22 @@
 
 `breeze-chms` provides convenient access to **[Breeze's People API](https://app.breezechms.com/api#people)**. You can use these methods to create, read, update, and delete people in your Breeze database.
 
-## Methods
-
 <details>
-<summary>A note about these functions:</summary>
 
 These primary methods for the people collection have been slightly modified from the way they're documented on the Breeze website. They aim to provide you with an easier way to get people documents in a desired format. It does this by internally making a comparison with user-defined profile fields automatically.
 
-These functions should work for 98% of use-cases, but the one downside is that user defined fields must be unique across your entire organization/account or unexpected behavior might occur.
+These functions should work for 98% of use-cases—the only downside is that user-defined fields must be unique across your entire organization/account or unexpected behavior might occur.
 
-The Breeze native functions are still available if you have a special need for them, but try the ones immediately below first.
-
-</details>
+The [Breeze-native](#native-breeze-api) functions are still available if you have a special need for them, but try the ones immediately below first.
 
 - [`people.get()`](#peopleget)
 - [`people.list()`](#peoplelist)
 - [`people.add()`](#peopleadd)
 - [`people.update()`](#peopleupdate)
 - [`people.delete()`](#peopledelete)
-- [`people.profileFields()`](#peopleprofileFields)
+- [`people.profileFields()`](#peopleprofilefields)
 
-<details>
-<summary>Native Breeze API:</summary>
-
-- [`people.api.get()`](#peopleapiget)
-- [`people.api.list()`](#peopleapilist)
-- [`people.api.add()`](#peopleapiadd)
-- [`people.api.update()`](#peopleapiupdate)
-- [`people.api.delete()`](#peopleapidelete)
-- [`people.api.profileFields()`](#peopleapiprofileFields)
-
-</details>
-
----
-
----
-
-### `people.get()`
+## `people.get()`
 
 Description
 
@@ -51,7 +30,7 @@ Description
 
 </details>
 
-#### Example:
+### Example:
 
 ```js
 // TODO: write example
@@ -66,9 +45,7 @@ Description
 
 </details>
 
----
-
-### `people.list()`
+## `people.list()`
 
 Retrieve a list people in your Breeze database with special formatting that performs an extra lookup and properly labels custom-defined fields.
 
@@ -83,7 +60,7 @@ Retrieve a list people in your Breeze database with special formatting that perf
 
 </details>
 
-#### Example:
+### Example:
 
 ```js
 await breeze.people.listProfiles({ fields: ['Service', 'Room Number'] });
@@ -98,9 +75,7 @@ await breeze.people.listProfiles({ fields: ['Service', 'Room Number'] });
 
 </details>
 
----
-
-### `people.add()`
+## `people.add()`
 
 Description
 
@@ -113,7 +88,91 @@ Description
 
 </details>
 
-#### Example:
+### Example:
+
+```js
+// TODO: write example
+```
+
+<details>
+<summary>Sample response:</summary>
+
+```json
+  // TODO: print response
+```
+
+</details>
+
+## `people.update()`
+
+Description
+
+<details>
+<summary>Parameters:</summary>
+
+| Option  | Description   | Default   |
+| ------- | ------------- | --------- |
+| option1 | description 1 | default 1 |
+
+</details>
+
+### Example:
+
+```js
+// TODO: write example
+```
+
+<details>
+<summary>Sample response:</summary>
+
+```json
+  // TODO: print response
+```
+
+</details>
+
+## `people.delete()`
+
+Description
+
+<details>
+<summary>Parameters:</summary>
+
+| Option  | Description   | Default   |
+| ------- | ------------- | --------- |
+| option1 | description 1 | default 1 |
+
+</details>
+
+### Example:
+
+```js
+// TODO: write example
+```
+
+<details>
+<summary>Sample response:</summary>
+
+```json
+  // TODO: print response
+```
+
+</details>
+
+## `people.profileFields()`
+
+Description
+
+<details>
+<summary>Parameters:</summary>
+
+| Option  | Description   | Default   |
+| ------- | ------------- | --------- |
+| option1 | description 1 | default 1 |
+
+</details>
+
+### Example:
 
 ```js
 // TODO: write example
@@ -130,107 +189,20 @@ Description
 
 ---
 
-### `people.update()`
-
-Description
-
-<details>
-<summary>Parameters:</summary>
-
-| Option  | Description   | Default   |
-| ------- | ------------- | --------- |
-| option1 | description 1 | default 1 |
-
-</details>
-
-#### Example:
-
-```js
-// TODO: write example
-```
-
-<details>
-<summary>Sample response:</summary>
-
-```json
-  // TODO: print response
-```
-
-</details>
-
 ---
 
-### `people.delete()`
-
-Description
-
-<details>
-<summary>Parameters:</summary>
-
-| Option  | Description   | Default   |
-| ------- | ------------- | --------- |
-| option1 | description 1 | default 1 |
-
-</details>
-
-#### Example:
-
-```js
-// TODO: write example
-```
-
-<details>
-<summary>Sample response:</summary>
-
-```json
-  // TODO: print response
-```
-
-</details>
-
----
-
-### `people.profileFields()`
-
-Description
-
-<details>
-<summary>Parameters:</summary>
-
-| Option  | Description   | Default   |
-| ------- | ------------- | --------- |
-| option1 | description 1 | default 1 |
-
-</details>
-
-#### Example:
-
-```js
-// TODO: write example
-```
-
-<details>
-<summary>Sample response:</summary>
-
-```json
-  // TODO: print response
-```
-
-</details>
-
----
-
----
-
----
-
-## Native Breeze API
+# Native Breeze API
 
 These methods are meant to mirror the API as it's described in the [official Breeze documentation](https://app.breezechms.com/api#people), but the [functions above](#methods) are generally preferred for their ease-of-use.
 
----
+- [`people.api.get()`](#peopleapiget)
+- [`people.api.list()`](#peopleapilist)
+- [`people.api.add()`](#peopleapiadd)
+- [`people.api.update()`](#peopleapiupdate)
+- [`people.api.delete()`](#peopleapidelete)
+- [`people.api.profileFields()`](#peopleapiprofilefields)
 
-### `people.api.get()`
+## `people.api.get()`
 
 Description
 
@@ -243,7 +215,7 @@ Description
 
 </details>
 
-#### Example:
+### Example:
 
 ```js
 // TODO: write example
@@ -258,15 +230,13 @@ Description
 
 </details>
 
----
-
-### `people.api.list()`
+## `people.api.list()`
 
 Retrieve a list people in your Breeze database. <sup>[Breeze API](https://app.breezechms.com/api#list_people)</sup>
 
 **NOTE:** For most cases, it's recommended to instead use [`people.list()`](#people.list) as it returns results in a more consumable format.
 
-#### Example:
+### Example:
 
 ```js
 await breeze.people.api.list();
@@ -281,9 +251,7 @@ await breeze.people.api.list();
 
 </details>
 
----
-
-### `people.api.add()`
+## `people.api.add()`
 
 Description
 
@@ -296,7 +264,7 @@ Description
 
 </details>
 
-#### Example:
+### Example:
 
 ```js
 // TODO: write example
@@ -311,9 +279,7 @@ Description
 
 </details>
 
----
-
-### `people.api.update()`
+## `people.api.update()`
 
 Description
 
@@ -326,7 +292,7 @@ Description
 
 </details>
 
-#### Example:
+### Example:
 
 ```js
 // TODO: write example
@@ -341,11 +307,7 @@ Description
 
 </details>
 
----
-
----
-
-### `people.api.delete()`
+## `people.api.delete()`
 
 Description
 
@@ -358,7 +320,7 @@ Description
 
 </details>
 
-#### Example:
+### Example:
 
 ```js
 // TODO: write example
@@ -373,11 +335,11 @@ Description
 
 </details>
 
-### `people.api.profileFields()`
+## `people.api.profileFields()`
 
 Get information about user-defined profile fields in your Breeze database. <sup>[Breeze API](https://app.breezechms.com/api#list_profile_fields)</sup>
 
-**NOTE:** For most cases, it's recommended to instead use [`people.profileFields()`](#peopleprofileFields) as it returns results in a more consumable format.
+**NOTE:** For most cases, it's recommended to instead use [`people.profileFields()`](#peopleprofilefields) as it returns results in a more consumable format.
 
 <details>
 <summary>Parameters:</summary>
@@ -388,7 +350,7 @@ Get information about user-defined profile fields in your Breeze database. <sup>
 
 </details>
 
-#### Example:
+### Example:
 
 ```js
 await breeze.api.profileFields();

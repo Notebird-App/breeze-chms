@@ -454,7 +454,7 @@ export default class People {
      * * **NOTE:** For most cases, it's recommended to instead use
      * `people.profileFields()` as it returns results in a more consumable format.
      *
-     * [View docs for `people.api.profile()`](https://github.com/Notebird-App/breeze-chms/blob/main/docs/People.md#peopleapiprofile) */
+     * [View docs for `people.api.profileFields()`](https://github.com/Notebird-App/breeze-chms/blob/main/docs/People.md#peopleapiprofileFields) */
     profileFields: this.apiProfileFields,
   };
 }
