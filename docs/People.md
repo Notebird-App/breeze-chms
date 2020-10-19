@@ -2,8 +2,6 @@
 
 `breeze-chms` provides convenient access to **[Breeze's People API](https://app.breezechms.com/api#people)**. You can use these methods to create, read, update, and delete people in your Breeze database.
 
-<details>
-
 These primary methods for the people collection have been slightly modified from the way they're documented on the Breeze website. They aim to provide you with an easier way to get people documents in a desired format. It does this by internally making a comparison with user-defined profile fields automatically.
 
 These functions should work for 98% of use-cases—the only downside is that user-defined fields must be unique across your entire organization/account or unexpected behavior might occur.
