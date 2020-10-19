@@ -4,14 +4,14 @@
 
 These primary methods for the people collection have been slightly modified from the way they're documented on the Breeze website. They aim to provide you with an easier way to get people documents in a desired format. It does this by internally making a comparison with user-defined profile fields automatically.
 
-These functions should work for 98% of use-cases—the only downside is that user-defined fields must be unique across your entire organization/account or unexpected behavior might occur.
+These functions should work for 98% of use-cases—the only downside is that user-defined fields that you're retreiving or updating must be unique across your entire organization/account. Othwerwise, unexpected behavior might occur.
 
 The [Breeze-native](#native-breeze-api) functions are still available if you have a special need for them, but try the ones immediately below first.
 
 - [`people.get()`](#peopleget)
 - [`people.list()`](#peoplelist)
-- [`people.add()`](#peopleadd)
 - [`people.update()`](#peopleupdate)
+- [`people.add()`](#peopleadd)
 - [`people.delete()`](#peopledelete)
 - [`people.profileFields()`](#peopleprofilefields)
 
@@ -19,170 +19,410 @@ The [Breeze-native](#native-breeze-api) functions are still available if you hav
 
 ## `people.get()`
 
-Description
+Get individual person record in your Breeze database with profile fields formatted and merged in. Some commonly-used predefined fields are included by default, but you can also define a list of your own to find and return with the results. Check out the `Sample response` below to see how the result is formatted and which fields are included by default.
+
+A few extra notes:
+
+- If a field can not be found or is empty, the value is set to null
+- Fields you define are loosely matched (ignores spaces, special characters, and capitalization). So for example, a field you want returned as `1stGradeTeacher` it would match a the custom profile field you have defined in Breeze named `1st-grade teacher`.
+- All dates are returned in ISO format _(Ex. `YYYY-MM-DD` or `2000-01-30`)_
+- Checkbox fields with multiple values are returned as a single string separated by an interpunct. _(Ex. `Value1 · Value2`)_
 
 <details>
 <summary>Parameters:</summary>
 
-| Option  | Description   | Default   |
-| ------- | ------------- | --------- |
-| option1 | description 1 | default 1 |
+| Option | Description                                                                   | Default                          |
+| ------ | ----------------------------------------------------------------------------- | -------------------------------- |
+| fields | An array of user-defined profile fields to lookup and include with the result | `[]` (no&nbsp;extra&nbsp;fields) |
 
 </details>
 
 ### Example:
 
 ```js
-// TODO: write example
+const person = await breeze.people.get('PERSON_ID', { fields: ['service', 'roomNumber'] });
 ```
 
 <details>
 <summary>Sample response:</summary>
 
 ```json
-  // TODO: print response
+{
+  "id": "PERSON_ID",
+  "img": "https://files.breezechms.com/img/profiles/upload/FILE_ID.jpg",
+  "name": {
+    "first": "William",
+    "last": "Frost",
+    "nick": "Bill",
+    "middle": null,
+    "maiden": null
+  },
+  "phones": [
+    {
+      "type": "home",
+      "number": "(111) 111-1111",
+      "private": false,
+      "disableText": false
+    },
+    {
+      "type": "mobile",
+      "number": "(222) 222-2222",
+      "private": false,
+      "disableText": false
+    },
+    {
+      "type": "work",
+      "number": "(333) 333-3333",
+      "private": false,
+      "disableText": false
+    }
+  ],
+  "email": {
+    "address": "bill@email.com",
+    "private": false,
+    "bulk": true
+  },
+  "address": {
+    "street1": "123 Sompelace Dr",
+    "street2": null,
+    "city": "Nowhere",
+    "state": "MI",
+    "zip": "55555",
+    "lat": null,
+    "lng": null,
+    "private": false
+  },
+  "birthday": "1980-02-05",
+  "gender": "Male",
+  "status": "Member",
+  "campus": "West",
+  "maritalStatus": "Single",
+  "school": null,
+  "grade": null,
+  "employer": "Breeze Industries",
+  "fields": {
+    "service": "2nd Service",
+    "roomNumber": "1010"
+  }
+}
 ```
 
 </details><br/>
 
 ## `people.list()`
 
-Retrieve a list people in your Breeze database with special formatting that performs an extra lookup and properly labels custom-defined fields.
+Retrieve a list people in your Breeze database with special formatting that performs an extra lookup and properly labels custom-defined fields. This works similarly to the same way [`people.get()`](#peopleget) does, but returns a list of people instead of an individual.
 
 <details>
 <summary>Parameters:</summary>
 
-| Option | Description                                                                                                                                                                             | Default                               |
-| ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------- |
-| limit  | Number of people to return. If 0 or not present, will return all people.                                                                                                                | `0` _(no&nbsp;limit)_                 |
-| offset | Number of people to skip before beginning to return results.<br>_(Can be used in conjunction with limit for pagination.)_                                                               | `0` _(no&nbsp;offset)_                |
-| fields | Array of custom fields to be matched up and included with each person result.<br>**NOTE:** This finds the first field that matches, so it's encouraged to use only fields unique names. | `['']` _(no&nbsp;custom&nbsp;fields)_ |
+| Option | Description                                                                                                                                                                                  | Default                               |
+| ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------- |
+| limit  | Number of people to return. If 0 or not present, will return all people.                                                                                                                     | `0` _(no&nbsp;limit)_                 |
+| offset | Number of people to skip before beginning to return results.<br>_(Can be used in conjunction with limit for pagination.)_                                                                    | `0` _(no&nbsp;offset)_                |
+| fields | Array of custom fields to be matched up and included with each person result.<br>**NOTE:** This finds the first field that matches, so it's encouraged to use only fields with unique names. | `['']` _(no&nbsp;custom&nbsp;fields)_ |
 
 </details>
 
 ### Example:
 
 ```js
-await breeze.people.listProfiles({ fields: ['Service', 'Room Number'] });
+const people = await breeze.people.list({ limit: 5, fields: ['service', 'roomNumber'] });
 ```
 
 <details>
 <summary>Sample response:</summary>
 
 ```json
-  // TODO: print response
-```
-
-</details><br/>
-
-## `people.add()`
-
-Description
-
-<details>
-<summary>Parameters:</summary>
-
-| Option  | Description   | Default   |
-| ------- | ------------- | --------- |
-| option1 | description 1 | default 1 |
-
-</details>
-
-### Example:
-
-```js
-// TODO: write example
-```
-
-<details>
-<summary>Sample response:</summary>
-
-```json
-  // TODO: print response
+[
+  {
+    "id": "PERSON_ID",
+    "img": "https://files.breezechms.com/img/profiles/upload/FILE_ID.jpg",
+    "name": {
+      "first": "William",
+      "last": "Frost",
+      "nick": "Bill",
+      "middle": null,
+      "maiden": null
+    },
+    "phones": [...],
+    "email": {...},
+    "address": {...},
+    "birthday": "1980-02-05",
+    "gender": "Male",
+    "status": "Member",
+    "campus": "West",
+    "maritalStatus": "Single",
+    "school": null,
+    "grade": null,
+    "employer": "Breeze Industries",
+    "fields": {
+      "service": "2nd Service",
+      "roomNumber": "1010"
+    }
+  },
+  {
+    "id": "PERSON_ID",
+    "img": null,
+    "name": {
+      "first": "William",
+      "last": "Frost",
+      "nick": "Bill",
+      "middle": null,
+      "maiden": null
+    },
+    "phones": [...],
+    "email": {...},
+    "address": {...},
+    ...
+  },
+  ...
 ```
 
 </details><br/>
 
 ## `people.update()`
 
-Description
+Update a person in your Breeze database with profile fields matched and formatted. The returned value of this function isn't the full person object, but rather, the `fields_json` array that is used in the update call.
+
+A few extra notes:
+
+- Any field you don't include will remain the same.
+- However, a `null` value or empty string will unset that field.
+- Fields you define are loosely matched (ignores spaces, special characters, and capitalization). So for example, a field you want returned as `1stGradeTeacher` it would match a the custom profile field you have defined in Breeze named `1st-grade teacher`.
+- Checkbox fields can be set with a string for a single value. For multiple values, you can use an array of strings or a interpunct delimited string. _(Ex. `'Value 1'`, `['Value 1', 'Value 2']`, `'Value 1 · Value 2` are all valid)_
 
 <details>
 <summary>Parameters:</summary>
 
-| Option  | Description   | Default   |
-| ------- | ------------- | --------- |
-| option1 | description 1 | default 1 |
+| Option        | Description                                                                                                                                                                                                                                                                                 | Default     |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
+| name          | Object to define any combination of different name parts to update. _(first, last, nick, middle, maiden)_                                                                                                                                                                                   | `undefined` |
+| birthday      | Date of person's birthday in ISO format _`YYYY-MM-DD`_                                                                                                                                                                                                                                      | `undefined` |
+| email         | String value of person's email address                                                                                                                                                                                                                                                      | `undefined` |
+| phones        | Object to define any combination of different phone number types. _(mobile, home, work)_                                                                                                                                                                                                    | `undefined` |
+| address       | Object to define a person's address _(street1, street2, city, state, zip)_                                                                                                                                                                                                                  | `undefined` |
+| gender        | String value representing a person's gender                                                                                                                                                                                                                                                 | `undefined` |
+| status        | String value representing a person's status                                                                                                                                                                                                                                                 | `undefined` |
+| campus        | String value representing a person's campus                                                                                                                                                                                                                                                 | `undefined` |
+| maritalStatus | String value representing a person's marital status                                                                                                                                                                                                                                         | `undefined` |
+| campus        | String value representing a person's campus                                                                                                                                                                                                                                                 | `undefined` |
+| school        | String value representing the school a student attends                                                                                                                                                                                                                                      | `undefined` |
+| grade         | String value representing the year a student graduates                                                                                                                                                                                                                                      | `undefined` |
+| employer      | String value representing a person's employer                                                                                                                                                                                                                                               | `undefined` |
+| fields        | An object that defines any other custom profile fields you want to update. Each key will loosely match the name of a custom-field and the value represets what you wish to update that field with. _(Ex. `{fields: {'service': '2nd service'}}`)_<br/>See the notes above for more details. | `undefined` |
 
 </details>
 
 ### Example:
 
 ```js
-// TODO: write example
+await breeze.people.update('PERSON_ID', {
+  name: {
+    first: 'Sally',
+    last: 'Ridings',
+    maiden: 'Jones',
+  },
+  birthday: '1980-06-14',
+  email: 'sally@email.com',
+  phones: {
+    mobile: '111-222-3333',
+    home: '', // Empty string unsets value
+    work: null, // Similarly, null value can unset values too
+  },
+  address: {
+    street1: '444 Nowhere Ave',
+    street2: 'Apt. 5',
+    city: 'Someplace',
+    state: 'OH',
+    zip: '98374',
+  },
+  gender: 'F', // This pacakge aims to work with either `Male/Female` or `M/F` values
+  status: 'Visitor',
+  campus: 'East',
+  fields: {
+    service: '3rd service',
+    roomNumber: '2371010',
+  },
+});
 ```
+
+### Returns: `void`
+
+<br/>
+
+## `people.add()`
+
+Add a person to your Breeze database with profile fields matched and formatted. This works similarly to the same way [`people.update()`](#peopleupdate) does, but creates a new document instead of updates an existing one. Refer to the [`people.update()`](#peopleupdate) documenation for more info.
 
 <details>
-<summary>Sample response:</summary>
+<summary>Parameters:</summary>
 
-```json
-  // TODO: print response
+| Option        | Description                                                                                                                                                                                                                                       | Default                               |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------- |
+| name          | Object to define any combination of different name parts to update. _(first, last, nick, middle, maiden)_                                                                                                                                         | `name.first` and `name.last` required |
+| birthday      | Date of person's birthday in ISO format _`YYYY-MM-DD`_                                                                                                                                                                                            | `undefined`                           |
+| email         | String value of person's email address                                                                                                                                                                                                            | `undefined`                           |
+| phones        | Object to define any combination of different phone number types. _(mobile, home, work)_                                                                                                                                                          | `undefined`                           |
+| address       | Object to define a person's address _(street1, street2, city, state, zip)_                                                                                                                                                                        | `undefined`                           |
+| gender        | String value representing a person's gender                                                                                                                                                                                                       | `undefined`                           |
+| status        | String value representing a person's status                                                                                                                                                                                                       | `undefined`                           |
+| campus        | String value representing a person's campus                                                                                                                                                                                                       | `undefined`                           |
+| maritalStatus | String value representing a person's marital status                                                                                                                                                                                               | `undefined`                           |
+| campus        | String value representing a person's campus                                                                                                                                                                                                       | `undefined`                           |
+| school        | String value representing the school a student attends                                                                                                                                                                                            | `undefined`                           |
+| grade         | String value representing the year a student graduates                                                                                                                                                                                            | `undefined`                           |
+| employer      | String value representing a person's employer                                                                                                                                                                                                     | `undefined`                           |
+| fields        | An object that defines any other custom profile fields you want to update. Each key will loosely match the name of a custom-field and the value represets what you wish to update that field with. _(Ex. `{fields: {'service': '2nd service'}}`)_ | `undefined`                           |
+
+</details>
+
+### Example:
+
+```js
+await breeze.people.add({
+  name: {
+    first: 'Sally',
+    last: 'Ridings',
+    maiden: 'Jones',
+  },
+  birthday: '1980-06-14',
+  email: 'sally@email.com',
+  phones: {
+    mobile: '111-111-1111',
+    home: '222-222-2222',
+  },
+  address: {
+    street1: '444 Nowhere Ave',
+    street2: 'Apt. 5',
+    city: 'Someplace',
+    state: 'OH',
+    zip: '98374',
+  },
+  gender: 'F', // This pacakge aims to work with either `Male/Female` or `M/F` values
+  status: 'Visitor',
+  campus: 'East',
+  fields: {
+    service: '3rd service',
+    roomNumber: '2371010',
+  },
+});
 ```
 
-</details><br/>
+### Returns: `PERSON_ID` string
+
+<br/>
 
 ## `people.delete()`
 
-Description
-
-<details>
-<summary>Parameters:</summary>
-
-| Option  | Description   | Default   |
-| ------- | ------------- | --------- |
-| option1 | description 1 | default 1 |
+Delete a person from your Breeze database.
 
 </details>
 
 ### Example:
 
 ```js
-// TODO: write example
+await breeze.people.delete('PERSON_ID');
 ```
 
-<details>
-<summary>Sample response:</summary>
-
-```json
-  // TODO: print response
-```
+### Returns: `void`
 
 </details><br/>
 
 ## `people.profileFields()`
 
-Description
+Get information about user-defined profile fields in your Breeze database keyed by the field's name with auto-lookup based on an array of strings.
+
+Some commonly-used predefined fields are included by default such as: name, phone, email, address, family, birthday, gender, status, campus, maritalStatus, school, grade, and employer.
+
+All other's can be passed in the `fields` array and will be returned if found.
 
 <details>
 <summary>Parameters:</summary>
 
-| Option  | Description   | Default   |
-| ------- | ------------- | --------- |
-| option1 | description 1 | default 1 |
+| Option | Description                                                                                                                                                                           | Default                               |
+| ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------- |
+| fields | Array of custom fields to be matched up and included with the results.<br>**NOTE:** This finds the first field that matches, so it's encouraged to use only fields with unique names. | `['']` _(no&nbsp;custom&nbsp;fields)_ |
 
 </details>
 
 ### Example:
 
 ```js
-// TODO: write example
+const profileFields = await breeze.people.profileFields({ fields: ['service', 'roomNumber'] });
 ```
 
 <details>
 <summary>Sample response:</summary>
 
 ```json
-  // TODO: print response
+[
+  {
+    "key": "name",
+    "id": "DOC_ID",
+    "oid": "ORG_ID",
+    "field_id": "FIELD_ID",
+    "profile_section_id": "1",
+    "field_type": "name",
+    "name": "Name",
+    "position": "2",
+    "profile_id": "PROFILE_ID",
+    "created_on": "2020-10-19 15:11:52",
+    "options": []
+  },
+  {
+    "key": "phone",
+    "id": "DOC_ID",
+    "oid": "ORG_ID",
+    "field_id": "FIELD_ID",
+    "profile_section_id": "4",
+    "field_type": "phone",
+    "name": "Phone",
+    "position": "59",
+    "profile_id": "PROFILE_ID",
+    "created_on": "2020-10-19 15:11:52",
+    "options": []
+  },
+  ...
+  {
+    "key": "service",
+    "id": "DOC_ID",
+    "oid": "ORG_ID",
+    "field_id": "FIELD_ID",
+    "profile_section_id": "1",
+    "field_type": "dropdown",
+    "name": "Service",
+    "position": "20",
+    "profile_id": "PROFILE_ID",
+    "created_on": "2020-10-19 15:11:52",
+    "options": [
+      {
+        "id": "DOC_ID",
+        "oid": "ORG_ID",
+        "option_id": "OPTION_ID",
+        "profile_field_id": "FIELD_ID",
+        "name": "1st Service",
+        "position": "21",
+        "profile_id": "PROFILE_ID",
+        "created_on": "2020-10-19 15:11:52"
+      },
+      ...
+    ]
+  },
+  {
+    "key": "roomNumber",
+    "id": "DOC_ID",
+    "oid": "ORG_ID",
+    "field_id": "FIELD_ID",
+    "profile_section_id": "1",
+    "field_type": "single_line",
+    "name": "Room Number",
+    "position": "24",
+    "profile_id": "PROFILE_ID",
+    "created_on": "2020-10-19 15:11:52",
+    "options": []
+  }
+]
 ```
 
 </details><br/>
@@ -193,12 +433,12 @@ Description
 
 # Native Breeze API
 
-These methods are meant to mirror the API as it's described in the [official Breeze documentation](https://app.breezechms.com/api#people), but the [functions above](#methods) are generally preferred for their ease-of-use.
+These methods are meant to mirror the API as it's described in the [official Breeze documentation](https://app.breezechms.com/api#people), but the [functions above](#people) are generally preferred for their ease-of-use.
 
 - [`people.api.get()`](#peopleapiget)
 - [`people.api.list()`](#peopleapilist)
-- [`people.api.add()`](#peopleapiadd)
 - [`people.api.update()`](#peopleapiupdate)
+- [`people.api.add()`](#peopleapiadd)
 - [`people.api.delete()`](#peopleapidelete)
 - [`people.api.profileFields()`](#peopleapiprofilefields)
 
@@ -206,21 +446,23 @@ These methods are meant to mirror the API as it's described in the [official Bre
 
 ## `people.api.get()`
 
-Description
+Get individual person record in your Breeze database. <sup>[Breeze API](https://app.breezechms.com/api#show_person)</sup>
+
+**NOTE:** For most cases, it's recommended to instead use [`people.get()`](#peopleget) as it returns a result in a more consumable format.
 
 <details>
 <summary>Parameters:</summary>
 
-| Option  | Description   | Default   |
-| ------- | ------------- | --------- |
-| option1 | description 1 | default 1 |
+| Option  | Description                                                                                                                               | Default                        |
+| ------- | ----------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------ |
+| details | Option to return all information (slower) or just basic info. `1` = get all information pertaining to person. `0` = only get id and name. | `1` (shows&nbsp;all&nbsp;info) |
 
 </details>
 
 ### Example:
 
 ```js
-// TODO: write example
+const person = await breeze.api.people.get('PERSON_ID');
 ```
 
 <details>
@@ -236,40 +478,24 @@ Description
 
 Retrieve a list people in your Breeze database. <sup>[Breeze API](https://app.breezechms.com/api#list_people)</sup>
 
-**NOTE:** For most cases, it's recommended to instead use [`people.list()`](#people.list) as it returns results in a more consumable format.
-
-### Example:
-
-```js
-await breeze.people.api.list();
-```
-
-<details>
-<summary>Sample response:</summary>
-
-```json
-  // TODO: print response
-```
-
-</details><br/>
-
-## `people.api.add()`
-
-Description
+**NOTE:** For most cases, it's recommended to instead use [`people.list()`](#peoplelist) as it returns results in a more consumable format.
 
 <details>
 <summary>Parameters:</summary>
 
-| Option  | Description   | Default   |
-| ------- | ------------- | --------- |
-| option1 | description 1 | default 1 |
+| Option      | Description                                                                                                                                                                                                                                                                                                                              | Default                       |
+| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------- |
+| details     | Option to return all information (slower) or just names. `1` = get all information pertaining to person. `0` = only get id and name.                                                                                                                                                                                                     | `0` (just&nbsp;names)         |
+| filter_json | Option to filter through results based on criteria (tags, status, etc).<br/>Refer to [`people.profileFields()`](#peopleprofilefields) response to know values to search for or if you're hard-coding the field ids, watch the URL bar when filtering for people within Breeze's people filter page and use the variables you see listed. | `undefined` (no&nbsp;filters) |
+| limit       | Number of people to return. If 0 or not present, will return all people.                                                                                                                                                                                                                                                                 | `0` (no&nbsp;limit)           |
+| offset      | Number of people to skip before beginning to return results.<br/>Can be used in conjunction with limit for pagination.                                                                                                                                                                                                                   | `0` (no&nbsp;offset)          |
 
 </details>
 
 ### Example:
 
 ```js
-// TODO: write example
+const people = await breeze.people.api.list({ details: 1 });
 ```
 
 <details>
@@ -283,21 +509,57 @@ Description
 
 ## `people.api.update()`
 
-Description
+Update a person in your Breeze database. <sup>[Breeze API](https://app.breezechms.com/api#update_person)</sup>
+
+**NOTE:** For most cases, it's recommended to instead use [`people.update()`](#peopleupdate) as it allows you to construct the person object in a more friendly format.
 
 <details>
 <summary>Parameters:</summary>
 
-| Option  | Description   | Default   |
-| ------- | ------------- | --------- |
-| option1 | description 1 | default 1 |
+| Option      | Description                                                                                                                                                                                                                                                                       |
+| ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| fields_json | Additional fields to update.<br/>These fields are passed as a JSON encoded array of fields, each containing a field id, field type, response, and in some cases, more information. The field information itself can be found on [`people.profileFields()`](#peopleprofilefields). |
 
 </details>
 
 ### Example:
 
 ```js
-// TODO: write example
+const updatedPerson = await breeze.people.api.update('PERSON_ID', {
+  fields_json: JSON.stringify([{ foo: 'bar' }, { bar: 'baz' }]),
+});
+```
+
+<details>
+<summary>Sample response:</summary>
+
+```json
+  // TODO: print response
+```
+
+</details><br/>
+
+## `people.api.add()`
+
+Add a person to your Breeze database. <sup>[Breeze API](https://app.breezechms.com/api#add_person)</sup>
+
+**NOTE:** For most cases, it's recommended to instead use [`people.add()`](#peopleadd) as it allows you to construct the person object in a more friendly format.
+
+<details>
+<summary>Parameters:</summary>
+
+| Option      | Description                                                                                                                                                                                                                                                                    |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| first       | New person's first name                                                                                                                                                                                                                                                        |
+| last        | New person's last name                                                                                                                                                                                                                                                         |
+| fields_json | Additional fields to add.<br/>These fields are passed as a JSON encoded array of fields, each containing a field id, field type, response, and in some cases, more information. The field information itself can be found on [`people.profileFields()`](#peopleprofilefields). |
+
+</details>
+
+### Example:
+
+```js
+const addedPerson = await breeze.people.api.add();
 ```
 
 <details>
@@ -311,31 +573,21 @@ Description
 
 ## `people.api.delete()`
 
-Description
+Delete a person from your Breeze database.
 
-<details>
-<summary>Parameters:</summary>
-
-| Option  | Description   | Default   |
-| ------- | ------------- | --------- |
-| option1 | description 1 | default 1 |
+**NOTE:** This is the same as [`people.delete()`](#peopledelete)
 
 </details>
 
 ### Example:
 
 ```js
-// TODO: write example
+await breeze.people.api.delete('PERSON_ID');
 ```
 
-<details>
-<summary>Sample response:</summary>
+### Returns: `true`
 
-```json
-  // TODO: print response
-```
-
-</details><br/>
+<br/>
 
 ## `people.api.profileFields()`
 

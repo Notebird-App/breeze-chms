@@ -182,7 +182,7 @@ export default class People {
       }
       const value = (typeof detail === 'string' ? detail?.trim() : detail?.name?.trim()) || null;
       if (!match || !value) continue;
-      // For birthday, gender, status, campus, maritalStatus, school, grade, or employer
+      // For predefined fields (birthday, gender, status, campus, maritalStatus, school, grade, or employer)
       const predefinedKey = match.key as typeof PREDEFINED_FIELDS[number];
       if (PREDEFINED_FIELDS.includes(predefinedKey)) {
         profile[predefinedKey] = value;
@@ -211,9 +211,9 @@ export default class People {
   /** Get individual person record in your Breeze database with profile fields formatted and merged in.
    *
    * [View docs for `people.get()`](https://github.com/Notebird-App/breeze-chms/blob/main/docs/People.md#peopleget) */
-  async get<L extends Lookup = never>(id: string, { fields = [] }: GetProfileParams<L> = {}) {
+  async get<L extends Lookup = never>(id: string, { fields = [] }: GetParams<L> = {}) {
     const [lookupFields, person] = await Promise.all([
-      this.profileFields(fields),
+      this.profileFields({ fields }),
       this.apiGet(id, { details: 1 }),
     ]);
     return this.formatPersonProfile({ person, fields, lookupFields });
@@ -226,55 +226,26 @@ export default class People {
     limit,
     offset,
     fields = [],
-  }: ListProfilesParams<L> = {}) {
+  }: ListParams<L> = {}) {
     const [lookupFields, people] = await Promise.all([
-      this.profileFields(fields),
+      this.profileFields({ fields }),
       this.apiList({ details: 1, filter_json, limit, offset }),
     ]);
     return people.map((person) => this.formatPersonProfile({ person, fields, lookupFields }));
-  }
-  /** Add a person to your Breeze database with profile fields matched and formatted.
-   *
-   * [View docs for `people.add()`](https://github.com/Notebird-App/breeze-chms/blob/main/docs/People.md#peopleadd) */
-  async add({ name }: AddProfileParams) {
-    const data = await this.apiAdd({ first: name.first.trim(), last: name.last.trim() });
-    // const id = data.id;
-    // await this.api.get('people/update', {
-    //   params: {
-    //     person_id: id,
-    //     fields_json: JSON.stringify([
-    //       {
-    //         field_id: '1488556527',
-    //         field_type: 'multiple_choice',
-    //         response: '2',
-    //       },
-    //       {
-    //         field_id: '734821768',
-    //         response: 'undefined',
-    //         field_type: 'name',
-    //         details: {
-    //           value: 'Heyo Heyo',
-    //           part: 'nick_name',
-    //           person_id: id,
-    //         },
-    //       },
-    //     ]),
-    //   },
-    // });
-    return data;
   }
   /** Update a person in your Breeze database with profile fields matched and formatted.
    *
    * [View docs for `people.update()`](https://github.com/Notebird-App/breeze-chms/blob/main/docs/People.md#peopleupdate) */
   async update(
     id: string,
-    { name = {}, birthday, phones = {}, email, address = {} }: UpdateProfileParams,
+    { name = {}, birthday, phones = {}, email, address, fields = {}, ...predefined }: UpdateParams,
   ) {
-    const fields_json: UpdateParams['fields_json'] = [];
+    const fields_json: ApiUpdateParams['fields_json'] = [];
 
-    const lookupFields = await this.profileFields();
-    for (const lookupField of lookupFields) {
-      const { field_id, field_type } = lookupField;
+    const profileFields = await this.profileFields({ fields: Object.keys(fields) });
+    profileFieldsLoop: for (const profileField of profileFields) {
+      const { field_id, field_type, options } = profileField;
+      // For default fields (name, birthday, phone, email, address)
       switch (field_type) {
         // Handle all different parts of name
         case 'name':
@@ -290,13 +261,13 @@ export default class People {
                 details: { value, part: `${namePart}_name`, person_id: id },
               });
           }
-          break;
+          continue profileFieldsLoop;
         // Handle birthday
         case 'birthdate':
           if (typeof birthday === 'undefined') break;
           const response = birthday?.trim() ?? '';
           fields_json.push({ field_id, field_type: 'birthdate', response });
-          break;
+          continue profileFieldsLoop;
         // Handle all different parts of phone
         case 'phone':
           for (const phonePart of Object.keys(phones) as (keyof typeof phones)[]) {
@@ -310,7 +281,7 @@ export default class People {
               details: { [`phone_${phonePart}`]: value },
             });
           }
-          break;
+          continue profileFieldsLoop;
         // Handle email address
         case 'email':
           if (typeof email === 'undefined') break;
@@ -321,10 +292,10 @@ export default class People {
             response: true,
             details: { address: value },
           });
-          break;
+          continue profileFieldsLoop;
         // Handle mailing address
         case 'address':
-          if (typeof address === 'undefined') break;
+          if (typeof address === 'undefined') continue profileFieldsLoop;
           const details = { street_address: '', city: '', state: '', zip: '' };
           if (address !== null) {
             const { street1, street2, city, state, zip } = address;
@@ -337,19 +308,105 @@ export default class People {
             details.zip = zip?.trim() ?? '';
           }
           fields_json.push({ field_id, field_type: 'address', response: true, details });
-          break;
+          continue profileFieldsLoop;
       }
+      // For predefined fields (gender, status, campus, maritalStatus, school, grade, or employer)
+      const predefinedKey = profileField.key as typeof PREDEFINED_FIELDS[number];
+      if (PREDEFINED_FIELDS.includes(predefinedKey) && predefinedKey !== 'birthday') {
+        const value = predefined[predefinedKey]?.trim();
+        if (typeof value === 'undefined') continue;
+        if (['multiple_choice', 'dropdown'].includes(field_type)) {
+          // If value unset, clear value in Breeze
+          if (!value) {
+            fields_json.push({ field_id, field_type, response: '' });
+            continue;
+          }
+          // Otherwise, lookup option id
+          let response = '';
+          const fuzzyValue = fuzzy(value);
+          let matchOption = options.find((option) => fuzzy(option.name) === fuzzyValue)?.option_id;
+          // For gender, 'm' should match male and 'f' should match female too!
+          if (!matchOption && predefinedKey === 'gender') {
+            const fuzzyValue = fuzzy(value.substr(0, 1));
+            matchOption = options.find((option) => fuzzy(option.name.substr(0, 1)) === fuzzyValue)
+              ?.option_id;
+          }
+          if (!matchOption) continue;
+          response = matchOption;
+          fields_json.push({ field_id, field_type: 'radio', response });
+          continue;
+        }
+        const response = value;
+        fields_json.push({ field_id, field_type, response });
+        continue;
+      }
+      // For custom defined fields
+      const fieldsValue = fields[profileField.key];
+      if (typeof fieldsValue === 'undefined') continue;
+      // Multi-choice custom-fields
+      if (['multiple_choice', 'dropdown'].includes(field_type)) {
+        const value = (Array.isArray(fieldsValue) ? fieldsValue[0] : fieldsValue?.trim()) || '';
+        // If value unset, clear value in Breeze
+        if (!value) {
+          fields_json.push({ field_id, field_type, response: '' });
+          continue;
+        }
+        // Otherwise, lookup option id
+        let response = '';
+        const fuzzyValue = fuzzy(value);
+        let matchOption = options.find((option) => fuzzy(option.name) === fuzzyValue)?.option_id;
+        if (!matchOption) continue;
+        response = matchOption;
+        fields_json.push({ field_id, field_type: 'radio', response });
+        continue;
+      }
+      // Deal with checkboxes that can have multiple values
+      if (field_type === 'checkbox') {
+        const clearCheckbox = Array.isArray(fieldsValue)
+          ? fieldsValue.length === 0
+          : !fieldsValue?.trim();
+        if (clearCheckbox) {
+          fields_json.push({ field_id, field_type, response: '' });
+          continue;
+        }
+        const fuzzyValues = (Array.isArray(fieldsValue)
+          ? fieldsValue
+          : fieldsValue?.split(' · ') || []
+        ).map(fuzzy);
+        for (const option of options) {
+          const matchFound = fuzzyValues.includes(fuzzy(option.name));
+          if (!matchFound) continue;
+          fields_json.push({ field_id, field_type, response: option.option_id });
+        }
+        continue;
+      }
+      // If we got here, it's a custom, single-line response
+      const response = (Array.isArray(fieldsValue) ? fieldsValue[0] : fieldsValue?.trim()) || '';
+      fields_json.push({ field_id, field_type, response });
     }
     await this.apiUpdate(id, { fields_json });
-    return fields_json;
+    // return fields_json;
+  }
+  /** Add a person to your Breeze database with profile fields matched and formatted.
+   *
+   * [View docs for `people.add()`](https://github.com/Notebird-App/breeze-chms/blob/main/docs/People.md#peopleadd) */
+  async add(params: AddParams) {
+    // Add person initially, primarily to get an id
+    const addedPerson = await this.apiAdd({
+      first: params.name.first.trim(),
+      last: params.name.last.trim(),
+    });
+    // With that ID, update all other fields
+    const data = await this.update(addedPerson.id, params);
+    return addedPerson.id;
   }
   /** Delete a person from your Breeze database. (This is an alias for `people.api.delete()`)*/
   delete = this.apiDelete;
-  /** Get information about user-defined profile fields in your Breeze database with
+  /** Get information about user-defined profile fields in your Breeze database
    * keyed by the field's name with auto-lookup based on an array of strings.
    *
-   * [View docs for `people.profileFields()`](https://github.com/Notebird-App/breeze-chms/blob/main/docs/People.md#peopleprofileFields) */
-  async profileFields<L extends Lookup = never>(fields: readonly L[] = []) {
+   * [View docs for `people.profileFields()`](https://github.com/Notebird-App/breeze-chms/blob/main/docs/People.md#peopleprofilefields) */
+  async profileFields<L extends Lookup = never>({ fields = [] }: { fields?: readonly L[] } = {}) {
     const profileFields = await this.apiProfileFields({ removeSections: true });
     const lookupFields: LookupField<L>[] = [];
     for (const key of [...DEFAULT_FIELDS, ...fields]) {
@@ -370,31 +427,31 @@ export default class People {
   /** Get individual person record in your Breeze database. */
   private apiGet(id: string, params: { details: 0 }): Promise<BreezePerson>;
   private apiGet(id: string, params?: { details?: 1 }): Promise<BreezePersonDetail>;
-  private async apiGet(id: string, params: GetParams = {}) {
+  private async apiGet(id: string, params: ApiGetParams = {}) {
     const { data } = await this.axios.get('people/' + id, { params });
     if (data.success === false) throw new Error(data.errors[0]);
     return data;
   }
   /** Retrieve a list of people in your Breeze database. */
-  private apiList(params?: { details?: 0 } & ListParams): Promise<BreezePerson[]>;
-  private apiList(params: { details: 1 } & ListParams): Promise<BreezePersonDetail[]>;
-  private async apiList(params: ListParams = {}) {
+  private apiList(params?: { details?: 0 } & ApiListParams): Promise<BreezePerson[]>;
+  private apiList(params: { details: 1 } & ApiListParams): Promise<BreezePersonDetail[]>;
+  private async apiList(params: ApiListParams = {}) {
     const { data } = await this.axios.get('people', { params });
     if (data.success === false) throw new Error(data.errors[0]);
     return data;
   }
-  /** Add a person to your Breeze database. */
-  private async apiAdd({ first = '', last = '', fields_json = [] }: AddParams = {}) {
-    const { data } = await this.axios.get('people/add', {
-      params: { first, last, fields_json: JSON.stringify(fields_json) },
+  /** Update a person in your Breeze database. */
+  private async apiUpdate(id: string, { fields_json }: ApiUpdateParams) {
+    const { data } = await this.axios.get('people/update', {
+      params: { person_id: id, fields_json: JSON.stringify(fields_json) },
     });
     if (data.success === false) throw new Error(data.errors[0]);
     return data as BreezePerson;
   }
-  /** Update a person in your Breeze database. */
-  private async apiUpdate(id: string, { fields_json }: UpdateParams) {
-    const { data } = await this.axios.get('people/update', {
-      params: { person_id: id, fields_json: JSON.stringify(fields_json) },
+  /** Add a person to your Breeze database. */
+  private async apiAdd({ first = '', last = '', fields_json = [] }: ApiAddParams = {}) {
+    const { data } = await this.axios.get('people/add', {
+      params: { first, last, fields_json: JSON.stringify(fields_json) },
     });
     if (data.success === false) throw new Error(data.errors[0]);
     return data as BreezePerson;
@@ -414,6 +471,10 @@ export default class People {
     if (data.success === false) throw new Error(data.errors[0]);
     return removeSections ? data.flatMap(({ fields }: any) => fields) : data;
   }
+  /** These methods are meant to mirror the API as it's described in the
+   * [official Breeze documentation](https://app.breezechms.com/api#people),
+   * but the [primary people methods](https://github.com/Notebird-App/breeze-chms/blob/main/docs/People.md#people)
+   * are generally preferred for their ease-of-use. */
   api = {
     /** Get individual person record in your Breeze database.
      *
@@ -429,13 +490,6 @@ export default class People {
      *
      * [View docs for `people.api.list()`](https://github.com/Notebird-App/breeze-chms/blob/main/docs/People.md#peopleapilist) */
     list: this.apiList,
-    /** Add a person to your Breeze database.
-     *
-     * * **NOTE:** For most cases, it's recommended to instead use
-     * `people.add()` as it allows you to construct the person object in a more friendly format.
-     *
-     * [View docs for `people.api.add()`](https://github.com/Notebird-App/breeze-chms/blob/main/docs/People.md#peopleapiadd) */
-    add: this.apiAdd,
     /** Update a person in your Breeze database.
      *
      * **NOTE:** For most cases, it's recommended to instead use
@@ -443,6 +497,13 @@ export default class People {
      *
      * [View docs for `people.api.update()`](https://github.com/Notebird-App/breeze-chms/blob/main/docs/People.md#peopleapiupdate) */
     update: this.apiUpdate,
+    /** Add a person to your Breeze database.
+     *
+     * * **NOTE:** For most cases, it's recommended to instead use
+     * `people.add()` as it allows you to construct the person object in a more friendly format.
+     *
+     * [View docs for `people.api.add()`](https://github.com/Notebird-App/breeze-chms/blob/main/docs/People.md#peopleapiadd) */
+    add: this.apiAdd,
     /** Delete a person from your Breeze database.
      *
      * **NOTE:** This is the same as `people.delete()`
@@ -454,7 +515,7 @@ export default class People {
      * * **NOTE:** For most cases, it's recommended to instead use
      * `people.profileFields()` as it returns results in a more consumable format.
      *
-     * [View docs for `people.api.profileFields()`](https://github.com/Notebird-App/breeze-chms/blob/main/docs/People.md#peopleapiprofileFields) */
+     * [View docs for `people.api.profileFields()`](https://github.com/Notebird-App/breeze-chms/blob/main/docs/People.md#peopleapiprofilefields) */
     profileFields: this.apiProfileFields,
   };
 }
@@ -533,7 +594,7 @@ interface FieldWithoutOptions extends ProfileField {
   options: [];
 }
 interface FieldWithOptions extends ProfileField {
-  field_type: 'multiple_choice' | 'dropdown';
+  field_type: 'multiple_choice' | 'dropdown' | 'checkbox';
   options: FieldOptions[];
 }
 interface FieldOptions {
@@ -671,8 +732,8 @@ type PersonProfile<T extends string = never> = {
 // Method Params //
 ///////////////////
 // Get
-interface GetParams {
-  /** Option to return all information (slower) or just names.
+interface ApiGetParams {
+  /** Option to return all information (slower) or just basic info.
    *
    * 1 = get all information pertaining to person
    *
@@ -682,7 +743,7 @@ interface GetParams {
    * */
   details?: 1 | 0;
 }
-interface GetProfileParams<L extends Lookup = never> {
+interface GetParams<L extends Lookup = never> {
   /**
    * Array of custom fields to be matched up and included with each person result.
    *
@@ -694,7 +755,7 @@ interface GetProfileParams<L extends Lookup = never> {
   fields?: readonly L[];
 }
 // List
-interface ListParams {
+interface ApiListParams {
   /** Option to return all information (slower) or just names.
    *
    * 1 = get all information pertaining to person
@@ -706,7 +767,7 @@ interface ListParams {
   details?: 1 | 0;
   /** Option to filter through results based on criteria (tags, status, etc).
    *
-   * Refer to `breeze.people.fields()` response to know values to search for or if you're
+   * Refer to `people.profileFields()` response to know values to search for or if you're
    * hard-coding the field ids, watch the URL bar when filtering for people
    * within Breeze's people filter page and use the variables you see listed.
    *
@@ -728,7 +789,7 @@ interface ListParams {
    * */
   offset?: number;
 }
-interface ListProfilesParams<L extends Lookup = never> {
+interface ListParams<L extends Lookup = never> {
   /** Option to filter through results based on criteria (tags, status, etc).
    *
    * Refer to `breeze.people.fields()` response to know values to search for or if you're
@@ -762,42 +823,11 @@ interface ListProfilesParams<L extends Lookup = never> {
    * */
   fields?: readonly L[];
 }
-// Add
-interface AddParams {
-  /** New person's first name */
-  first?: string;
-  /** New person's last name */
-  last?: string;
-  /** Any other fields to add.
-   *
-   * Additional fields to include. These fields are passed as a JSON encoded array of fields,
-   * each containing a field id, field type, response, and in some cases, more information.
-   * The field information itself can be found with `breeze.people.fields()`.
-   * */
-  fields_json?: {
-    field_id: string;
-    field_type: string;
-    response: string | true;
-    details?: string | { [key: string]: string };
-  }[];
-}
-interface AddProfileParams {
-  /** New person's name parts */
-  name: {
-    /** New person's first name */
-    first: string;
-    /** New person's last name */
-    last: string;
-    /** New person's nick name */
-    nick?: string;
-    /** New person's middle name */
-    middle?: string;
-    /** New person's maiden name */
-    maiden?: string;
-  };
-}
 // Update
-interface UpdateParams {
+interface ApiUpdateParams {
+  /** Additional fields to update. These fields are passed as a JSON encoded array of fields,
+   * each containing a field id, field type, response, and in some cases, more information.
+   * The field information itself can be found on `people.profileFields()`. */
   fields_json: {
     field_id: string;
     field_type: string;
@@ -805,7 +835,7 @@ interface UpdateParams {
     details?: string | { [key: string]: string };
   }[];
 }
-interface UpdateProfileParams {
+interface UpdateParams {
   /** Person's name parts to update */
   name?: {
     /** Value to update person's first name with */
@@ -845,4 +875,54 @@ interface UpdateProfileParams {
     /** Value to update person's zip code with */
     zip?: string | null;
   } | null;
+  /** Value to update person's gender with */
+  gender?: string | null;
+  /** Value to update person's status with */
+  status?: string | null;
+  /** Value to update person's campus with */
+  campus?: string | null;
+  /** Value to update person's maritalStatus with */
+  maritalStatus?: string | null;
+  /** Value to update person's school with */
+  school?: string | null;
+  /** Value to update person's grade with */
+  grade?: string | null;
+  /** Value to update person's employer with */
+  employer?: string | null;
+  /** User-defined fields to update */
+  fields?: { [key: string]: string | null | string[] };
+}
+// Add
+interface ApiAddParams {
+  /** New person's first name */
+  first?: string;
+  /** New person's last name */
+  last?: string;
+  /** Any other fields to add.
+   *
+   * Additional fields to include. These fields are passed as a JSON encoded array of fields,
+   * each containing a field id, field type, response, and in some cases, more information.
+   * The field information itself can be found with `people.profileFields()`.
+   * */
+  fields_json?: {
+    field_id: string;
+    field_type: string;
+    response: string | true;
+    details?: string | { [key: string]: string };
+  }[];
+}
+interface AddParams extends UpdateParams {
+  /** New person's name parts */
+  name: {
+    /** New person's first name */
+    first: string;
+    /** New person's last name */
+    last: string;
+    /** New person's nick name */
+    nick?: string;
+    /** New person's middle name */
+    middle?: string;
+    /** New person's maiden name */
+    maiden?: string;
+  };
 }
