@@ -15,6 +15,8 @@ The [Breeze-native](#native-breeze-api) functions are still available if you hav
 - [`people.delete()`](#peopledelete)
 - [`people.profileFields()`](#peopleprofilefields)
 
+<br/>
+
 ## `people.get()`
 
 Description
@@ -41,7 +43,7 @@ Description
   // TODO: print response
 ```
 
-</details>
+</details><br/>
 
 ## `people.list()`
 
@@ -71,7 +73,7 @@ await breeze.people.listProfiles({ fields: ['Service', 'Room Number'] });
   // TODO: print response
 ```
 
-</details>
+</details><br/>
 
 ## `people.add()`
 
@@ -99,7 +101,7 @@ Description
   // TODO: print response
 ```
 
-</details>
+</details><br/>
 
 ## `people.update()`
 
@@ -127,7 +129,7 @@ Description
   // TODO: print response
 ```
 
-</details>
+</details><br/>
 
 ## `people.delete()`
 
@@ -155,7 +157,7 @@ Description
   // TODO: print response
 ```
 
-</details>
+</details><br/>
 
 ## `people.profileFields()`
 
@@ -183,7 +185,7 @@ Description
   // TODO: print response
 ```
 
-</details>
+</details><br/>
 
 ---
 
@@ -199,6 +201,8 @@ These methods are meant to mirror the API as it's described in the [official Bre
 - [`people.api.update()`](#peopleapiupdate)
 - [`people.api.delete()`](#peopleapidelete)
 - [`people.api.profileFields()`](#peopleapiprofilefields)
+
+<br/>
 
 ## `people.api.get()`
 
@@ -226,7 +230,7 @@ Description
   // TODO: print response
 ```
 
-</details>
+</details><br/>
 
 ## `people.api.list()`
 
@@ -247,7 +251,7 @@ await breeze.people.api.list();
   // TODO: print response
 ```
 
-</details>
+</details><br/>
 
 ## `people.api.add()`
 
@@ -275,7 +279,7 @@ Description
   // TODO: print response
 ```
 
-</details>
+</details><br/>
 
 ## `people.api.update()`
 
@@ -303,7 +307,7 @@ Description
   // TODO: print response
 ```
 
-</details>
+</details><br/>
 
 ## `people.api.delete()`
 
@@ -331,7 +335,7 @@ Description
   // TODO: print response
 ```
 
-</details>
+</details><br/>
 
 ## `people.api.profileFields()`
 
