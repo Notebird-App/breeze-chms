@@ -9,7 +9,7 @@
 
 ## `account.summary()`
 
-Retrieve a summary overview of your account/organization details.
+Retrieve a summary overview of your account/organization details. <sup>[Breeze API](https://app.breezechms.com/api#account_summary)</sup>
 
 ### Example:
 
@@ -47,7 +47,7 @@ const summary = await breeze.account.summary();
 
 ## `account.logs()`
 
-Retrieve a list of events based on search criteria.
+Retrieve a list of events based on search criteria. <sup>[Breeze API](https://app.breezechms.com/api#list_account_log)</sup>
 
 ### Example:
 

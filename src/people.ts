@@ -74,6 +74,7 @@ export default class People {
       middle_name,
       maiden_name,
       details,
+      family,
     } = person;
     // Format name
     const first = force_first_name.trim();
@@ -82,6 +83,15 @@ export default class People {
     const middle = middle_name.trim() || null;
     const maiden = maiden_name.trim() || null;
     const name = { first, last, nick, middle, maiden };
+
+    // Find family role
+    let familyRole: Person['familyRole'] = 'Unassigned';
+    for (const { person_id, role_name } of family) {
+      if (person_id === id) {
+        familyRole = role_name;
+        break;
+      }
+    }
 
     // Other default fields
     const birthday = details.birthdate || null;
@@ -101,6 +111,8 @@ export default class People {
       school: null,
       grade,
       employer: null,
+      familyRole,
+      family,
       fields: Object.assign(
         {},
         ...fields.map((key) => ({ [Array.isArray(key) ? key[0] : key]: null })),
@@ -238,7 +250,16 @@ export default class People {
    * [View docs for `people.update()`](https://github.com/Notebird-App/breeze-chms/blob/main/docs/People.md#peopleupdate) */
   async update(
     id: string,
-    { name = {}, birthday, phones = {}, email, address, fields = {}, ...predefined }: UpdateParams,
+    {
+      name = {},
+      birthday,
+      phones = {},
+      email,
+      address,
+      familyRole,
+      fields = {},
+      ...predefined
+    }: UpdateParams,
   ) {
     const fields_json: ApiUpdateParams['fields_json'] = [];
 
@@ -305,6 +326,24 @@ export default class People {
             details.zip = zip?.trim() ?? '';
           }
           fields_json.push({ field_id, field_type: 'address', response: true, details });
+          continue profileFieldsLoop;
+        // Handle family role
+        case 'family':
+          if (typeof familyRole === 'undefined') continue profileFieldsLoop;
+          const roles: { [K in Person['familyRole']]: string } = {
+            Unassigned: '1',
+            Child: '2',
+            Adult: '3',
+            'Head of Household': '4',
+            Spouse: '5',
+          };
+          const role_id = roles[familyRole];
+          fields_json.push({
+            field_id,
+            field_type: 'family_role',
+            response: 'undefined',
+            details: { person_id: id, role_id },
+          });
           continue profileFieldsLoop;
       }
       // For predefined fields (gender, status, campus, maritalStatus, school, grade, or employer)
@@ -637,6 +676,19 @@ export interface BreezePerson {
   /** Relative file path to person's profile image */
   path: string;
 }
+type FamilyRole = 'Unassigned' | 'Child' | 'Adult' | 'Head of Household' | 'Spouse';
+interface FamilyProfile {
+  id: string;
+  oid: string;
+  person_id: string;
+  family_id: string;
+  family_role_id: '1' | '2' | '3' | '4' | '5';
+  created_on: string;
+  role_name: FamilyRole;
+  role_id: '1' | '2' | '3' | '4' | '5';
+  order: string;
+  details: BreezePerson;
+}
 export interface BreezePersonDetail extends BreezePerson {
   /** Person's nickname */
   nick_name: string;
@@ -669,8 +721,8 @@ export interface BreezePersonDetail extends BreezePerson {
       | string
       | undefined;
   };
-  /** Array of family IDs */
-  family: string[];
+  /** Array of family info */
+  family: FamilyProfile[];
 }
 interface PhoneDetail<T extends 'home' | 'mobile' | 'work'> {
   field_type: 'phone';
@@ -724,6 +776,8 @@ export type Person<T extends string = never> = {
     lng: string | null;
     private: boolean;
   } | null;
+  familyRole: FamilyRole;
+  family: FamilyProfile[];
   fields: { [K in T]: string | null };
 } & { [K in typeof PREDEFINED_FIELDS[number]]: string | null };
 
@@ -888,6 +942,8 @@ export interface UpdateParams {
   grade?: string | null;
   /** Value to update person's employer with */
   employer?: string | null;
+  /** Value to update person's family role with */
+  familyRole?: FamilyRole;
   /** User-defined fields to update */
   fields?: { [key: string]: string | null | string[] };
 }

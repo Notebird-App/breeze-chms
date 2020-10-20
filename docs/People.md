@@ -100,6 +100,8 @@ const person = await breeze.people.get('PERSON_ID', { fields: ['service', 'roomN
   "school": null,
   "grade": null,
   "employer": "Breeze Industries",
+  "familyRole": "Head of Household",
+  "family": [...],
   "fields": {
     "service": "2nd Service",
     "roomNumber": "1010"
@@ -156,6 +158,8 @@ const people = await breeze.people.list({ limit: 5, fields: ['service', 'roomNum
     "school": null,
     "grade": null,
     "employer": "Breeze Industries",
+    "familyRole": "Adult",
+    "family": [...],
     "fields": {
       "service": "2nd Service",
       "roomNumber": "1010"
@@ -210,6 +214,7 @@ A few extra notes:
 | school        | String value representing the school a student attends                                                                                                                                                                                                                                      | `undefined` |
 | grade         | String value representing the year a student graduates                                                                                                                                                                                                                                      | `undefined` |
 | employer      | String value representing a person's employer                                                                                                                                                                                                                                               | `undefined` |
+| familyRole    | String value representing a person's role in the family _(Valid values include `Unassigned`, `Child`, `Adult`, `Head of Household`, or `Spouse`)_                                                                                                                                           | `undefined` |
 | fields        | An object that defines any other custom profile fields you want to update. Each key will loosely match the name of a custom-field and the value represets what you wish to update that field with. _(Ex. `{fields: {'service': '2nd service'}}`)_<br/>See the notes above for more details. | `undefined` |
 
 </details>
@@ -273,6 +278,7 @@ Add a person to your Breeze database with profile fields matched and formatted. 
 | school        | String value representing the school a student attends                                                                                                                                                                                            | `undefined`                           |
 | grade         | String value representing the year a student graduates                                                                                                                                                                                            | `undefined`                           |
 | employer      | String value representing a person's employer                                                                                                                                                                                                     | `undefined`                           |
+| familyRole    | String value representing a person's role in the family _(Valid values include `Unassigned`, `Child`, `Adult`, `Head of Household`, or `Spouse`)_                                                                                                 | `undefined`                           |
 | fields        | An object that defines any other custom profile fields you want to update. Each key will loosely match the name of a custom-field and the value represets what you wish to update that field with. _(Ex. `{fields: {'service': '2nd service'}}`)_ | `undefined`                           |
 
 </details>

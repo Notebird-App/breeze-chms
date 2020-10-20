@@ -55,6 +55,8 @@ const ADD_PERSON: Person<'service' | 'roomNumber'> = {
   school: null,
   grade: null,
   employer: null,
+  familyRole: 'Unassigned',
+  family: [],
   fields: { service: '3rd Service', roomNumber: '1010' },
 };
 const UPDATE_PARAMS: UpdateParams = {
@@ -86,6 +88,8 @@ const UPDATE_PERSON: Person<'service' | 'roomNumber' | 'notFound'> = {
   school: null,
   grade: null,
   employer: null,
+  familyRole: 'Unassigned',
+  family: [],
   fields: { service: null, roomNumber: '237', notFound: null },
 };
 
