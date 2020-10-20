@@ -103,6 +103,11 @@ test('Update person', async () => {
   ).resolves.toStrictEqual({ ...UPDATE_PERSON, id: PERSON_ID });
 });
 
+test('List people', async () => {
+  const people = await breeze.people.list({ limit: 2 });
+  expect(people.length).toEqual(2);
+});
+
 test('Delete person', async () => {
   await expect(breeze.people.delete(PERSON_ID)).resolves.toBe(undefined);
 });
