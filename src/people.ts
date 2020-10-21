@@ -507,7 +507,9 @@ export default class People {
   private async apiProfileFields({ removeSections }: { removeSections?: boolean } = {}) {
     const { data } = await this.axios.get('profile');
     if (data.success === false) throw new Error(data.errors[0]);
-    return removeSections ? data.flatMap(({ fields }: any) => fields) : data;
+    return removeSections
+      ? (data as any[]).reduce((arr, { fields }) => [...arr, ...fields], [])
+      : data;
   }
   /** These methods are meant to mirror the API as it's described in the
    * [official Breeze documentation](https://app.breezechms.com/api#people),
