@@ -97,6 +97,8 @@ const person = await breeze.people.get('PERSON_ID', { fields: ['service', 'roomN
   "status": "Member",
   "campus": "West",
   "maritalStatus": "Single",
+  "anniversary": "1985-01-25",
+  "anniversary": "1979-08-17",
   "school": null,
   "grade": null,
   "employer": "Breeze Industries",
@@ -155,6 +157,8 @@ const people = await breeze.people.list({ limit: 5, fields: ['service', 'roomNum
     "status": "Member",
     "campus": "West",
     "maritalStatus": "Single",
+    "anniversary": "1985-01-25",
+    "anniversary": "1979-08-17",
     "school": null,
     "grade": null,
     "employer": "Breeze Industries",
@@ -210,6 +214,8 @@ A few extra notes:
 | status        | String value representing a person's status                                                                                                                                                                                                                                                 | `undefined` |
 | campus        | String value representing a person's campus                                                                                                                                                                                                                                                 | `undefined` |
 | maritalStatus | String value representing a person's marital status                                                                                                                                                                                                                                         | `undefined` |
+| anniversary   | Date of person's anniversary in ISO format _`YYYY-MM-DD`_                                                                                                                                                                                                                                   | `undefined` |
+| joinDate      | Date person joined the congregation in ISO format _`YYYY-MM-DD`_                                                                                                                                                                                                                            | `undefined` |
 | campus        | String value representing a person's campus                                                                                                                                                                                                                                                 | `undefined` |
 | school        | String value representing the school a student attends                                                                                                                                                                                                                                      | `undefined` |
 | grade         | String value representing the year a student graduates                                                                                                                                                                                                                                      | `undefined` |
@@ -245,6 +251,8 @@ await breeze.people.update('PERSON_ID', {
   gender: 'F', // This pacakge aims to work with either `Male/Female` or `M/F` values
   status: 'Visitor',
   campus: 'East',
+  anniversary: '2003-06-20',
+  joinDate: '1998-03-17',
   fields: {
     service: '3rd service',
     roomNumber: '2371010',
@@ -274,6 +282,8 @@ Add a person to your Breeze database with profile fields matched and formatted. 
 | status        | String value representing a person's status                                                                                                                                                                                                       | `undefined`                           |
 | campus        | String value representing a person's campus                                                                                                                                                                                                       | `undefined`                           |
 | maritalStatus | String value representing a person's marital status                                                                                                                                                                                               | `undefined`                           |
+| anniversary   | Date of person's anniversary in ISO format _`YYYY-MM-DD`_                                                                                                                                                                                         | `undefined`                           |
+| joinDate      | Date person joined the congregation in ISO format _`YYYY-MM-DD`_                                                                                                                                                                                  | `undefined`                           |
 | campus        | String value representing a person's campus                                                                                                                                                                                                       | `undefined`                           |
 | school        | String value representing the school a student attends                                                                                                                                                                                            | `undefined`                           |
 | grade         | String value representing the year a student graduates                                                                                                                                                                                            | `undefined`                           |

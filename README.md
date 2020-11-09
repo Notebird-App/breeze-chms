@@ -79,7 +79,7 @@ subdomain=YOURSUBDOMAIN
 key=YOURAPIKEY
 ```
 
-This let's you properly run the tests via [Jest](https://jestjs.io/). However, they might fail at first because they rely on a couple custom profile fields to be present in your account. So you can add `Service` and `Room Number` in your Breeze account as custom text fields. _(You can remove these later if you wish)_
+This let's you properly run the tests via [Jest](https://jestjs.io/). However, they might fail at first because they rely on a couple custom profile fields to be present in your account. So you can add `Anniversary`, `Date joined`, `Service`, and `Room Number` in your Breeze account as custom text fields. _(You can remove these later if you wish)_
 
 ## Versioning
 

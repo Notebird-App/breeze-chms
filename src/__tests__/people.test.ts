@@ -29,6 +29,7 @@ const ADD_PARAMS: AddParams = {
   gender: 'Male',
   status: 'Visitor',
   maritalStatus: 'single',
+  joinDate: '2020-01-24',
   fields: { service: '3rd service', roomNumber: '1010' },
 };
 const ADD_PERSON: Person<'service' | 'roomNumber'> = {
@@ -52,6 +53,8 @@ const ADD_PERSON: Person<'service' | 'roomNumber'> = {
   status: 'Visitor',
   campus: null,
   maritalStatus: 'Single',
+  anniversary: null,
+  joinDate: '2020-01-24',
   school: null,
   grade: null,
   employer: null,
@@ -68,6 +71,8 @@ const UPDATE_PARAMS: UpdateParams = {
   gender: 'F',
   status: 'Member',
   maritalStatus: 'Married',
+  anniversary: '2000-01-25',
+  joinDate: null,
   fields: { service: null, roomNumber: '237' },
 };
 const UPDATE_PERSON: Person<'service' | 'roomNumber' | 'notFound'> = {
@@ -85,6 +90,8 @@ const UPDATE_PERSON: Person<'service' | 'roomNumber' | 'notFound'> = {
   status: 'Member',
   campus: null,
   maritalStatus: 'Married',
+  anniversary: '2000-01-25',
+  joinDate: null,
   school: null,
   grade: null,
   employer: null,

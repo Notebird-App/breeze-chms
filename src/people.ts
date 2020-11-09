@@ -19,6 +19,17 @@ const DEFAULT_FIELDS = [
   'status',
   'campus',
   ['maritalStatus', 'marriageStatus', 'relationshipStatus'],
+  [
+    'anniversary',
+    'marriedon',
+    'marriagedate',
+    'weddingdate',
+    'dateofwedding',
+    'dateofmarriage',
+    'weddinganniversarydate',
+    'marriageanniversarydate',
+  ],
+  ['joinDate', 'datejoined'],
   ['school', 'highschool', 'college', 'university'],
   'grade',
   ['employer', 'employment', 'job', 'work', 'workplace'],
@@ -29,6 +40,8 @@ const PREDEFINED_FIELDS = [
   'status',
   'campus',
   'maritalStatus',
+  'anniversary',
+  'joinDate',
   'school',
   'grade',
   'employer',
@@ -39,6 +52,22 @@ const PREDEFINED_FIELDS = [
  *
  * Ex. `fuzzy('3-Blind mice!') === '3blindmice'` */
 const fuzzy = (val: string) => val.replace(/[^A-Z0-9]/gi, '').toLowerCase();
+/** Identify if a string value is a date in MM/DD/YYYY and return in ISO format (YYYY-MM-DD) */
+const makeDateIso = (val: string) => {
+  const dateArray = val.split('/');
+  if (dateArray.length === 3) {
+    const month = Number(dateArray[0]);
+    const day = Number(dateArray[1]);
+    const year = Number(dateArray[2]);
+    const validMonth = month >= 1 && month <= 12;
+    const validDay = day >= 1 && day <= 31;
+    const validYear = year >= 0 && year <= 9999;
+    if (validMonth && validDay && validYear) {
+      return `${dateArray[2]}-${dateArray[0]}-${dateArray[1]}`;
+    }
+  }
+  return val;
+};
 
 // Class definition
 export default class People {
@@ -104,10 +133,12 @@ export default class People {
       email: null,
       address: null,
       birthday,
+      anniversary: null,
       gender: null,
       status: null,
       campus: null,
       maritalStatus: null,
+      joinDate: null,
       school: null,
       grade,
       employer: null,
@@ -194,28 +225,17 @@ export default class People {
       }
       const value = (typeof detail === 'string' ? detail?.trim() : detail?.name?.trim()) || null;
       if (!match || !value) continue;
-      // For predefined fields (birthday, gender, status, campus, maritalStatus, school, grade, or employer)
+      // For predefined fields (birthday, gender, status, campus, maritalStatus, anniversary, school, grade, or employer)
       const predefinedKey = match.key as typeof PREDEFINED_FIELDS[number];
       if (PREDEFINED_FIELDS.includes(predefinedKey)) {
-        profile[predefinedKey] = value;
+        profile[predefinedKey] = ['anniversary', 'joinDate'].includes(predefinedKey)
+          ? makeDateIso(value)
+          : value;
         continue;
       }
       // Not predefined
       const key = match.key as LookupKeys<L>;
-      profile.fields[key] = value;
-      // If value is date, convert to ISO `YYYY-MM-DD` and override
-      const dateArray = value.split('/');
-      if (dateArray.length === 3) {
-        const month = Number(dateArray[0]);
-        const day = Number(dateArray[1]);
-        const year = Number(dateArray[2]);
-        const validMonth = month >= 1 && month <= 12;
-        const validDay = day >= 1 && day <= 31;
-        const validYear = year >= 0 && year <= 9999;
-        if (validMonth && validDay && validYear) {
-          profile.fields[key] = `${dateArray[2]}-${dateArray[0]}-${dateArray[1]}`;
-        }
-      }
+      profile.fields[key] = makeDateIso(value);
     }
 
     return profile;
@@ -938,6 +958,10 @@ export interface UpdateParams {
   campus?: string | null;
   /** Value to update person's maritalStatus with */
   maritalStatus?: string | null;
+  /** Value to update person's anniversary with */
+  anniversary?: string | null;
+  /** Value to update person's join date with */
+  joinDate?: string | null;
   /** Value to update person's school with */
   school?: string | null;
   /** Value to update person's grade with */
