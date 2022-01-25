@@ -28,7 +28,7 @@ const ADD_PARAMS: AddParams = {
   },
   gender: 'Male',
   status: 'Visitor',
-  maritalStatus: 'single',
+  maritalStatus: 'Single',
   joinDate: '2020-01-24',
   fields: { service: '3rd service', roomNumber: '1010' },
 };
@@ -68,7 +68,7 @@ const UPDATE_PARAMS: UpdateParams = {
   email: 'sam@email.com',
   phones: { mobile: null, home: '222-222-2222', work: '333-333-3333' },
   address: null,
-  gender: 'F',
+  gender: 'Female',
   status: 'Member',
   maritalStatus: 'Married',
   anniversary: '2000-01-25',
