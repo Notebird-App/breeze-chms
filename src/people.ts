@@ -529,7 +529,7 @@ export default class People {
     const { data } = await this.axios.get('profile');
     if (data.success === false) throw new Error(data.errors[0]);
     return removeSections
-      ? (data as any[]).reduce((arr, { fields }) => [...arr, ...fields], [])
+      ? (data as any[]).reduce((arr, { fields }) => (fields ? [...arr, ...fields] : arr), [])
       : data;
   }
   /** These methods are meant to mirror the API as it's described in the
