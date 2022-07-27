@@ -27,6 +27,8 @@ const DEFAULT_FIELDS = [
     'dateofwedding',
     'dateofmarriage',
     'anniversarydate',
+    'weddinganniversary',
+    'marriageanniversary',
     'weddinganniversarydate',
     'marriageanniversarydate',
   ],

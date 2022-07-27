@@ -1,6 +1,6 @@
 {
   "name": "breeze-chms",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Provides convenient access to the Breeze REST API - https://app.breezechms.com/api.",
   "keywords": [
     "breeze",

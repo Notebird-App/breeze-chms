@@ -51,6 +51,7 @@ test('Fetch account summary', async () => {
 });
 
 test('Fetch account logs', async () => {
+  jest.setTimeout(30000);
   const [log] = await breeze.account.logs({ action: 'person_updated' });
   expect(log).toMatchShapeOf(ACCOUNT_LOG);
   const [logDetail] = await breeze.account.logs({ action: 'person_updated', details: 1 });
