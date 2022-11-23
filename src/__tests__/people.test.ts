@@ -7,7 +7,7 @@ import { AddParams, UpdateParams, Person } from '../people';
 test("Throws 'Permission Denied' Error", async () => {
   const invalidBreeze = new Breeze('invalid', 'invalid');
   await expect(invalidBreeze.people.list()).rejects.toEqual(
-    Error('Permission Denied - API key (invalid) does not match subdomain (invalid)'),
+    Error('Request failed with status code 403'),
   );
 });
 

@@ -1,4 +1,4 @@
-import Axios, { AxiosInstance } from 'axios';
+import Axios from 'axios';
 import People from './people';
 import Account from './account';
 
@@ -39,3 +39,6 @@ export default class Breeze {
    * [API REF](https://app.breezechms.com/api#account) */
   account: Account;
 }
+
+module.exports = Breeze;
+module.exports.default = Breeze;

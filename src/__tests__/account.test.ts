@@ -7,7 +7,7 @@ import { AccountSummary, AccountLog, AccountLogDetail } from '../account';
 test("Throws 'Permission Denied' Error", async () => {
   const invalidBreeze = new Breeze('invalid', 'invalid');
   await expect(invalidBreeze.account.summary()).rejects.toEqual(
-    Error('Permission Denied - API key (invalid) does not match subdomain (invalid)'),
+    Error('Request failed with status code 403'),
   );
 });
 
@@ -37,7 +37,7 @@ const ACCOUNT_LOG: AccountLog = {
   id: 'LOG_ID',
   oid: 'ORG_ID',
   user_id: 'USER_ID',
-  action: 'person_updated',
+  action: 'person_created',
   object_json: '"5023943"',
   created_on: '2019-08-15 04:41:10',
 };
@@ -52,8 +52,8 @@ test('Fetch account summary', async () => {
 
 test('Fetch account logs', async () => {
   jest.setTimeout(30000);
-  const [log] = await breeze.account.logs({ action: 'person_updated' });
+  const [log] = await breeze.account.logs({ action: 'person_created' });
   expect(log).toMatchShapeOf(ACCOUNT_LOG);
-  const [logDetail] = await breeze.account.logs({ action: 'person_updated', details: 1 });
+  const [logDetail] = await breeze.account.logs({ action: 'person_created', details: 1 });
   expect(logDetail).toMatchShapeOf(ACCOUNT_LOG_DETAIL);
 });

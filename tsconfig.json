@@ -1,11 +1,8 @@
 {
+  "extends": "@tsconfig/node14/tsconfig.json",
   "compilerOptions": {
-    "target": "es5",
-    "lib": ["esnext"],
-    "module": "commonjs",
     "declaration": true,
-    "outDir": "./build",
-    "strict": true
+    "outDir": "./build"
   },
   "include": ["src"],
   "exclude": ["node_modules", "**/__tests__/*"]
