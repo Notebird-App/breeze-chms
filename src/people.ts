@@ -496,8 +496,10 @@ export default class People {
   /** Retrieve a list of people in your Breeze database. */
   private apiList(params?: { details?: 0 } & ApiListParams): Promise<BreezePerson[]>;
   private apiList(params: { details: 1 } & ApiListParams): Promise<BreezePersonDetail[]>;
-  private async apiList(params: ApiListParams = {}) {
-    const { data } = await this.axios.get('people', { params });
+  private async apiList({ filter_json, ...params }: ApiListParams = {}) {
+    const { data } = await this.axios.get('people', {
+      params: filter_json ? { filter_json: JSON.stringify(filter_json), ...params } : params,
+    });
     if (data.success === false) throw new Error(data.errors[0]);
     return data;
   }
