@@ -192,9 +192,10 @@ export default class People {
           if (field.field_type === 'address_primary') {
             const { street_address, city, state, zip, latitude, longitude, is_private } = field;
             if (street_address) {
+              const addressParts = street_address.split(/<br\s*\/?>/);
               profile.address = {
-                street1: street_address.split('<br />')[0]?.trim() || null,
-                street2: street_address.split('<br />')[1]?.trim() || null,
+                street1: addressParts[0]?.trim() || null,
+                street2: addressParts[1]?.trim() || null,
                 city: city.trim() || null,
                 state: state.trim() || null,
                 zip: zip.trim() || null,
@@ -229,7 +230,7 @@ export default class People {
       const value = (typeof detail === 'string' ? detail?.trim() : detail?.name?.trim()) || null;
       if (!match || !value) continue;
       // For predefined fields (birthday, gender, status, campus, maritalStatus, anniversary, school, grade, or employer)
-      const predefinedKey = match.key as typeof PREDEFINED_FIELDS[number];
+      const predefinedKey = match.key as (typeof PREDEFINED_FIELDS)[number];
       if (PREDEFINED_FIELDS.includes(predefinedKey)) {
         profile[predefinedKey] = ['anniversary', 'joinDate'].includes(predefinedKey)
           ? makeDateIso(value)
@@ -342,7 +343,7 @@ export default class People {
             const { street1, street2, city, state, zip } = address;
             const line1 = street1?.trim() ?? '';
             const line2 = street2?.trim() ?? '';
-            const separator = line1 && line2 ? '<br />' : '';
+            const separator = line1 && line2 ? '<br>' : '';
             details.street_address = line1 + separator + line2;
             details.city = city?.trim() ?? '';
             details.state = state?.trim() ?? '';
@@ -370,7 +371,7 @@ export default class People {
           continue profileFieldsLoop;
       }
       // For predefined fields (gender, status, campus, maritalStatus, school, grade, or employer)
-      const predefinedKey = profileField.key as typeof PREDEFINED_FIELDS[number];
+      const predefinedKey = profileField.key as (typeof PREDEFINED_FIELDS)[number];
       if (PREDEFINED_FIELDS.includes(predefinedKey) && predefinedKey !== 'birthday') {
         if (typeof predefined[predefinedKey] === 'undefined') continue;
         const value = `${predefined[predefinedKey] || ''}`.trim();
@@ -388,8 +389,9 @@ export default class People {
           // For gender, 'm' should match male and 'f' should match female too!
           if (!matchOption && predefinedKey === 'gender') {
             const fuzzyValue = fuzzy(value.substr(0, 1));
-            matchOption = options.find((option) => fuzzy(option.name.substr(0, 1)) === fuzzyValue)
-              ?.option_id;
+            matchOption = options.find(
+              (option) => fuzzy(option.name.substr(0, 1)) === fuzzyValue,
+            )?.option_id;
           }
           if (!matchOption) continue;
           response = matchOption;
@@ -430,9 +432,8 @@ export default class People {
           fields_json.push({ field_id, field_type, response: '' });
           continue;
         }
-        const fuzzyValues = (Array.isArray(fieldsValue)
-          ? fieldsValue
-          : fieldsValue?.split(' · ') || []
+        const fuzzyValues = (
+          Array.isArray(fieldsValue) ? fieldsValue : fieldsValue?.split(' · ') || []
         ).map(fuzzy);
         for (const option of options) {
           const matchFound = fuzzyValues.includes(fuzzy(option.name));
@@ -688,7 +689,7 @@ interface FieldOptions {
   created_on: string;
 }
 type LookupField<T extends Lookup> = {
-  key: LookupKeys<T | typeof DEFAULT_FIELDS[number]>;
+  key: LookupKeys<T | (typeof DEFAULT_FIELDS)[number]>;
 } & (FieldWithoutOptions | FieldWithOptions);
 // Person
 export interface BreezePerson {
@@ -806,7 +807,7 @@ export type Person<T extends string = never> = {
   familyRole: FamilyRole;
   family: FamilyProfile[];
   fields: { [K in T]: string | null };
-} & { [K in typeof PREDEFINED_FIELDS[number]]: string | null };
+} & { [K in (typeof PREDEFINED_FIELDS)[number]]: string | null };
 
 ///////////////////
 // Method Params //

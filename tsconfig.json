@@ -1,9 +1,13 @@
 {
-  "extends": "@tsconfig/node14/tsconfig.json",
+  "extends": "@tsconfig/node18/tsconfig.json",
   "compilerOptions": {
     "declaration": true,
-    "outDir": "./build"
+    "declarationMap": true,
+    "sourceMap": true,
+    "outDir": "./build",
+    "forceConsistentCasingInFileNames": true,
+    "importHelpers": true,
   },
   "include": ["src"],
-  "exclude": ["node_modules", "**/__tests__/*"]
+  "exclude": ["node_modules", "**/__tests__/*"],
 }
