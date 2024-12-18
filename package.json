@@ -1,6 +1,6 @@
 {
   "name": "breeze-chms",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Provides convenient access to the Breeze REST API - https://app.breezechms.com/api.",
   "keywords": [
     "breeze",
@@ -18,8 +18,20 @@
   "type": "module",
   "exports": {
     ".": {
-      "types": "./build/breeze.d.ts",
-      "import": "./build/breeze.js"
+      "types": "./build/index.d.ts",
+      "import": "./build/index.js",
+      "require": "./build/index.js",
+      "default": "./build/index.js"
+    }
+  },
+  "main": "./build/index.js",
+  "module": "./build/index.js",
+  "types": "./build/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "*": [
+        "./build/index.d.ts"
+      ]
     }
   },
   "files": [
@@ -32,7 +44,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/notebird-app/breeze-chms.git"
+    "url": "git+https://github.com/notebird-app/breeze-chms.git"
   },
   "author": "Chris Doe <cdoe@notebird.app> (notebird.app)",
   "license": "MIT",

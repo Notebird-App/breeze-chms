@@ -16,20 +16,13 @@ yarn add breeze-chms
 
 ## Usage
 
+This package is pure ESM. It must be `import`ed rather than `require`d.
+
 The package needs to be configured with your account's subdomain and secret API key. The subdomain is what comes before `breezechms.com` in your browser address bar. Your unique/secret API key is available on the `Extensions` page of your Breeze account `https://YOURSUBDOMAIN.breezechms.com/extensions/api`. Require the package and initialize it with values for your subdomain and API key.
 
 > **NOTE**: DO NOT hardcode, expose, or otherwise commit your API key to a repository.
 
-```js
-const breeze = require('breeze-chms')('SUBDOMAIN', 'APIKEY');
-
-breeze.people
-  .get('PERSONID')
-  .then((person) => console.log(person.id))
-  .catch((error) => console.error(error));
-```
-
-Or using ES modules and `async`/`await`:
+This package is pure ESM. It must be `import`ed rather than `require`d and `async`/`await`:
 
 ```js
 import Breeze from 'breeze-chms';
