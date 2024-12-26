@@ -1,6 +1,6 @@
 {
   "name": "breeze-chms",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "description": "Provides convenient access to the Breeze REST API - https://app.breezechms.com/api.",
   "keywords": [
     "breeze",
@@ -11,7 +11,9 @@
     "test-watch": "jest --config jestconfig.json --watch",
     "watch": "tsc --watch",
     "clean": "rm -rf build",
-    "build": "npm run clean && tsc",
+    "build:esm": "tsc",
+    "build:cjs": "tsc -p tsconfig.cjs.json",
+    "build": "npm run clean && npm run build:esm && npm run build:cjs",
     "prepare": "npm run build",
     "prepublishOnly": "npm run test"
   },
@@ -19,20 +21,14 @@
   "exports": {
     ".": {
       "types": "./build/index.d.ts",
-      "import": "./build/index.js",
-      "default": "./build/index.js"
+      "import": "./build/esm/index.js",
+      "require": "./build/cjs/index.js",
+      "default": "./build/esm/index.js"
     }
   },
-  "main": "./build/index.js",
-  "module": "./build/index.js",
+  "main": "./build/cjs/index.js",
+  "module": "./build/esm/index.js",
   "types": "./build/index.d.ts",
-  "typesVersions": {
-    "*": {
-      "*": [
-        "./build/index.d.ts"
-      ]
-    }
-  },
   "files": [
     "build/**/*"
   ],

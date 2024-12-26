@@ -16,7 +16,39 @@ yarn add breeze-chms
 
 ## Usage
 
-This package is pure ESM. It must be `import`ed rather than `require`d.
+This package supports both ESM and CommonJS imports.
+
+### ESM (recommended)
+
+```js
+// Static import
+import Breeze from 'breeze-chms';
+
+// Dynamic import
+const { default: Breeze } = await import('breeze-chms');
+```
+
+### CommonJS
+
+```js
+// require syntax
+const Breeze = require('breeze-chms');
+```
+
+> This package uses TypeScript and comes fully typed, providing code-hinting via Intellisense. If you're not familiar with TypeScript—[get started today](https://www.typescriptlang.org/)!
+
+### TypeScript Configuration
+
+When using TypeScript, ensure your `tsconfig.json` has appropriate module resolution:
+
+```json
+{
+  "compilerOptions": {
+    "moduleResolution": "node16", // or "bundler" for newer versions
+    "module": "node16" // or "CommonJS" if using require
+  }
+}
+```
 
 The package needs to be configured with your account's subdomain and secret API key. The subdomain is what comes before `breezechms.com` in your browser address bar. Your unique/secret API key is available on the `Extensions` page of your Breeze account `https://YOURSUBDOMAIN.breezechms.com/extensions/api`. Require the package and initialize it with values for your subdomain and API key.
 
@@ -33,8 +65,6 @@ const breeze = new Breeze('SUBDOMAIN', 'APIKEY');
   console.log(person.id);
 })();
 ```
-
-> This package uses Typescript and comes fully typed meaning it can provide code-hinting via Intellisense. If you're not familiar with Typescript—[get started today](https://www.typescriptlang.org/)!
 
 ## Endpoints
 
