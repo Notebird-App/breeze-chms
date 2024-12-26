@@ -1,6 +1,6 @@
 {
   "name": "breeze-chms",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Provides convenient access to the Breeze REST API - https://app.breezechms.com/api.",
   "keywords": [
     "breeze",
@@ -20,7 +20,7 @@
   "type": "module",
   "exports": {
     ".": {
-      "types": "./build/index.d.ts",
+      "types": "./build/esm/index.d.ts",
       "import": "./build/esm/index.js",
       "require": "./build/cjs/index.js",
       "default": "./build/esm/index.js"
@@ -28,7 +28,7 @@
   },
   "main": "./build/cjs/index.js",
   "module": "./build/esm/index.js",
-  "types": "./build/index.d.ts",
+  "types": "./build/esm/index.d.ts",
   "files": [
     "build/**/*"
   ],
